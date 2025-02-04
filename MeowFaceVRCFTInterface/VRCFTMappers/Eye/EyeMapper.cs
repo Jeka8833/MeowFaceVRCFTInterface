@@ -9,9 +9,9 @@ namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
         private const float RadianConst = 0.01745329251994329576923690768488612713442871888541725456097191440171009114f;
 
         public bool EyeGazeX { get; set; } = true;
-        public EyeGaze EyeGazeY { get; set; } = EyeGaze.Shape;
+        public EyeGaze EyeGazeY { get; set; } = EyeGaze.Vector;
 
-        public bool HelpBlinkWithEyeSquint { get; set; } = false;
+        public bool HelpBlinkWithEyeSquint { get; set; } = true;
 
         public void UpdateEye(MeowFaceParam meowFaceParam)
         {
@@ -61,33 +61,24 @@ namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
                     float? eyeLookUpLeftN = meowFaceParam.GetShape(MeowFaceParam.EyeLookUpLeft);
                     float? eyeLookDownLeftN = meowFaceParam.GetShape(MeowFaceParam.EyeLookDownLeft);
 
-                    if (eyeLookUpLeftN != null && eyeLookDownLeftN != null)
+                    if (eyeLookUpLeftN != null || eyeLookDownLeftN != null)
                     {
-                        UnifiedTracking.Data.Eye.Left.Gaze.y = eyeLookUpLeftN.Value - eyeLookDownLeftN.Value;
+                        float eyeOpennessLeft = 1f - meowFaceParam.GetShape(MeowFaceParam.EyeBlinkLeft, 1f).GetValueOrDefault(0f);
+
+                        UnifiedTracking.Data.Eye.Left.Gaze.y = (eyeLookUpLeftN.GetValueOrDefault(0f) -
+                            eyeLookDownLeftN.GetValueOrDefault(0f)) * eyeOpennessLeft;
                     }
-                    else if (eyeLookUpLeftN != null)
-                    {
-                        UnifiedTracking.Data.Eye.Left.Gaze.y = eyeLookUpLeftN.Value;
-                    }
-                    else if (eyeLookDownLeftN != null)
-                    {
-                        UnifiedTracking.Data.Eye.Left.Gaze.y = -eyeLookDownLeftN.Value;
-                    }
+
 
                     float? eyeLookUpRightN = meowFaceParam.GetShape(MeowFaceParam.EyeLookUpRight);
                     float? eyeLookDownRightN = meowFaceParam.GetShape(MeowFaceParam.EyeLookDownRight);
 
-                    if (eyeLookUpRightN != null && eyeLookDownRightN != null)
+                    if (eyeLookUpRightN != null || eyeLookDownRightN != null)
                     {
-                        UnifiedTracking.Data.Eye.Right.Gaze.y = eyeLookUpRightN.Value - eyeLookDownRightN.Value;
-                    }
-                    else if (eyeLookUpRightN != null)
-                    {
-                        UnifiedTracking.Data.Eye.Right.Gaze.y = eyeLookUpRightN.Value;
-                    }
-                    else if (eyeLookDownRightN != null)
-                    {
-                        UnifiedTracking.Data.Eye.Right.Gaze.y = -eyeLookDownRightN.Value;
+                        float eyeOpennessRight = 1f - meowFaceParam.GetShape(MeowFaceParam.EyeBlinkRight, 1f).GetValueOrDefault(0f);
+
+                        UnifiedTracking.Data.Eye.Right.Gaze.y = (eyeLookUpRightN.GetValueOrDefault(0f) -
+                            eyeLookDownRightN.GetValueOrDefault(0f)) * eyeOpennessRight;
                     }
                     break;
             }
@@ -111,6 +102,7 @@ namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
                     UnifiedTracking.Data.Eye.Right.Openness = 1f - Math.Min(1f, eyeBlinkLeft);
                 }
             }
+
 
             float? eyeBlinkRightN = meowFaceParam.GetShape(MeowFaceParam.EyeBlinkRight);
             if (eyeBlinkRightN is float eyeBlinkRight)

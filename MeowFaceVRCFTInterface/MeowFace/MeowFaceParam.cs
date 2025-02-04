@@ -17,14 +17,14 @@ namespace MeowFaceVRCFTInterface.MeowFace
 
         public const string EyeBlinkLeft = "eyeBlinkLeft";//
         public const string EyeBlinkRight = "eyeBlinkRight";//
-        public const string EyeLookDownLeft = "eyeLookDownLeft";
-        public const string EyeLookDownRight = "eyeLookDownRight";
+        public const string EyeLookDownLeft = "eyeLookDownLeft";//
+        public const string EyeLookDownRight = "eyeLookDownRight";//
         public const string EyeLookInLeft = "eyeLookInLeft";
         public const string EyeLookInRight = "eyeLookInRight";
         public const string EyeLookOutLeft = "eyeLookOutLeft";
         public const string EyeLookOutRight = "eyeLookOutRight";
-        public const string EyeLookUpLeft = "eyeLookUpLeft";
-        public const string EyeLookUpRight = "eyeLookUpRight";
+        public const string EyeLookUpLeft = "eyeLookUpLeft";//
+        public const string EyeLookUpRight = "eyeLookUpRight";//
         public const string EyeSquintLeft = "eyeSquintLeft";//
         public const string EyeSquintRight = "eyeSquintRight";//
         public const string EyeWideLeft = "eyeWideLeft";//

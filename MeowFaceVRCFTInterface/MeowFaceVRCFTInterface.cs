@@ -13,20 +13,17 @@ namespace MeowFaceVRCFTInterface
     {
         private const ushort _port = 12345;
         private readonly IMapperCft[] _mappers = { new EyeMapper(), new BrowMapper(), new CheekMapper(),
-            new JawMapper(), new LipAndMouthMapper(), new NoseMapper(), new TongueMapper() };
+            new JawMapper(), new LipAndMouthMapper(), new NoseMapper(), new TongueMapper()};
 
-
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-        private MeowUdpClient _udpClient;
-        private ILogger _skipSpamLogger;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+        private MeowUdpClient _udpClient = null!;
+        public ILogger SkipSpamLogger { get; private set; } = null!;
 
         public override (bool SupportsEye, bool SupportsExpression) Supported => (true, true);
 
         public override (bool eyeSuccess, bool expressionSuccess) Initialize(bool eyeAvailable, bool expressionAvailable)
         {
-            _skipSpamLogger = new SkipSpamLogger(Logger);
-            _udpClient = new(_port, _skipSpamLogger)
+            SkipSpamLogger = new SkipSpamLogger(Logger);
+            _udpClient = new(_port, SkipSpamLogger)
             {
                 ReceiveTimeoutMillis = 60_000
             };
@@ -46,6 +43,11 @@ namespace MeowFaceVRCFTInterface
                 Logger.LogInformation("The Android MeowFace app failed to connect to this computer in 60 seconds. Disabling the module...");
 
                 return (false, false);
+            }
+
+            foreach (IMapperCft mapper in _mappers)
+            {
+                mapper.Initialize(this);
             }
 
             _udpClient.ReceiveTimeoutMillis = 10_000;
@@ -101,7 +103,7 @@ namespace MeowFaceVRCFTInterface
             }
             catch (Exception e)
             {
-                _skipSpamLogger.LogWarning(e, "Exception in Module Update Loop");
+                SkipSpamLogger.LogWarning(e, "Exception in Module Update Loop");
             }
         }
 

@@ -27,17 +27,20 @@ namespace MeowFaceVRCFTInterface.Config
         {
             try
             {
-                MeowConfig? data = JsonConvert.DeserializeObject<MeowConfig>(File.ReadAllText(_configPath));
-                if (data is MeowConfig currentConfig)
+                if (File.Exists(_configPath))
                 {
-                    InitializeConfigAndDisableBrokenMappers(currentConfig);
+                    MeowConfig? data = JsonConvert.DeserializeObject<MeowConfig>(File.ReadAllText(_configPath));
+                    if (data is MeowConfig currentConfig)
+                    {
+                        InitializeConfigAndDisableBrokenMappers(currentConfig);
 
-                    _logger.LogInformation("Config loaded");
-                }
-                else
-                {
-                    _logger.LogWarning("Failed to load configuration, data equals null.\n" +
-                        "All configuration data from MeowConfig will be deleted, sorry");
+                        _logger.LogInformation("Config loaded");
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to load configuration, data equals null.\n" +
+                            "All configuration data from MeowConfig will be deleted, sorry");
+                    }
                 }
             }
             catch (Exception e)
@@ -71,9 +74,9 @@ namespace MeowFaceVRCFTInterface.Config
                 {
                     _logger.LogWarning(e, "Failed to create directory for config");
                 }
+
                 string configJson = JsonConvert.SerializeObject(Config, Formatting.Indented);
                 File.WriteAllText(_configPath, configJson, Encoding.UTF8);
-                _logger.LogInformation("Config saved to {}", _configPath);
 
                 _logger.LogDebug("Config saved");
             }
@@ -89,42 +92,30 @@ namespace MeowFaceVRCFTInterface.Config
 
             foreach (MapperCft mapper in newList)
             {
+                if (!mapper.IsEnabled) continue;
+
                 try
                 {
                     mapper.Initialize(_module);
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, "Failed to initialize mapper: {}, Disabling it...", mapper);
+                    mapper.IsMapperCrashed = true;
 
-                    mapper.IsEnabled = false;   // The consequences of incorrectly loading a mapper can be unpredictable. Disable it.
+                    _logger.LogWarning(e, "Failed to initialize mapper: {}, Disabling it...", mapper.GetType().Name);
                 }
             }
 
             Config = config;
             Mappers = newList;
         }
+
         private static MapperCft[] GetMappers(MeowConfig config)
         {
             return new MapperCft[] {
                 config.EyeMapper, config.BrowMapper, config.CheekMapper, config.JawMapper,
                 config.LipAndMouthMapper, config.NoseMapper, config.TongueMapper
             };
-        }
-
-        // I "love" Windows UWP...
-        private static string? GetUwpPath()
-        {
-            try
-            {
-                Windows.Storage.ApplicationData appData = Windows.Storage.ApplicationData.Current;
-
-                return appData.LocalFolder.Path;
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
         }
     }
 }

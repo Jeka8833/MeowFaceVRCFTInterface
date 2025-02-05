@@ -12,6 +12,14 @@ namespace MeowFaceVRCFTInterface
 {
     public class MeowFaceVRCFTInterface : ExtTrackingModule
     {
+        // C:\Users\[UserName]\AppData\Local\Packages\[96ba052f-0948-44d8-86c4-a0212e4ae047_4s4k90pjvq32p]\LocalCache\Roaming\VRCFaceTracking\Configs\MeowFace\MeowConfig.json
+        // or
+        // C:\Users\[UserName]\AppData\Roaming\VRCFaceTracking\Configs\MeowFace\MeowConfig.json
+        //
+        // Where [UserName] is your Windows username
+        // and [96ba052f-0948-44d8-86c4-a0212e4ae047_4s4k90pjvq32p] is the VRCFaceTracking package name, for you it can be different, try to search similar folder
+        //
+        // In either case, the path should be printed in the VRCFT logs.
         private static readonly string _configPath = Path.Combine(
             VRCFaceTracking.Core.Utils.PersistentDataDirectory, "Configs", "MeowFace", "MeowConfig.json");
 
@@ -31,6 +39,8 @@ namespace MeowFaceVRCFTInterface
             _configManager = new(_configPath, this, MeowLogger);
             _configManager.LoadConfig();
 
+            UwpConfigPathFinder.PrintConfigPath(MeowLogger, _configPath);
+
             ushort udpPort = _configManager.Config.MeowFacePort;
             int udpConnectionTimeoutMillis = _configManager.Config.SearchMeowFaceTimeoutSeconds * 1_000;
 
@@ -42,9 +52,9 @@ namespace MeowFaceVRCFTInterface
             MeowLogger.LogInformation("MeowFace interface is waiting for connection.\n" +
                 "Please try entering one of the following addresses ({}) in the \"Enter PC IP Address\" field " +
                 "and then set \"Enter PC Port number\" to {}.\n" +
-                "If you fail to do so in 60 seconds, the module will be disabled " +
+                "If you fail to do so in {} seconds, the module will be disabled " +
                 "and you will have to restart the VRCFT application to try to connect again.",
-                string.Join(", ", GetLocalIPAddresses()), udpPort);
+                string.Join(", ", GetLocalIPAddresses()), udpPort, _configManager.Config.SearchMeowFaceTimeoutSeconds);
 
             if (!_udpClient.TryConnect(udpConnectionTimeoutMillis))
             {
@@ -52,8 +62,8 @@ namespace MeowFaceVRCFTInterface
 
                 ModuleInformation.Active = false;
 
-                MeowLogger.LogInformation("The Android MeowFace app failed to connect to this computer in 60 seconds. " +
-                    "Disabling the module...");
+                MeowLogger.LogInformation("The Android MeowFace app failed to connect to this computer in {} seconds. " +
+                    "Disabling the module...", _configManager.Config.SearchMeowFaceTimeoutSeconds);
 
                 return (false, false);
             }
@@ -97,7 +107,7 @@ namespace MeowFaceVRCFTInterface
                 {
                     foreach (MapperCft mapper in _configManager.Mappers)
                     {
-                        if (!mapper.IsEnabled) continue;
+                        if (!mapper.IsEnabled || mapper.IsMapperCrashed) continue;
 
                         if (ModuleInformation.UsingEye)
                         {
@@ -127,21 +137,12 @@ namespace MeowFaceVRCFTInterface
             }
         }
 
-        private static List<string> GetLocalIPAddresses()
+        private static IOrderedEnumerable<IPAddress> GetLocalIPAddresses()
         {
-            List<string> ips = new();
-
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    ips.Add(ip.ToString());
-                }
-            }
-
-
-            return ips;
+            return Dns.GetHostEntry(Dns.GetHostName())
+                .AddressList
+                .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                .OrderBy(ip => ip.ToString().StartsWith("192.168.") ? -1 : 0);
         }
     }
 }

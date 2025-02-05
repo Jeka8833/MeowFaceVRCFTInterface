@@ -1,4 +1,6 @@
 ﻿using MeowFaceVRCFTInterface.MeowFace;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using VRCFaceTracking;
 using VRCFaceTracking.Core.Params.Expressions;
 
@@ -9,6 +11,8 @@ namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
         private const float _radianConst = 0.01745329251994329576923690768488612713442871888541725456097191440171009114f;
 
         public bool EyeGazeX { get; set; } = true;
+
+        [JsonConverter(typeof(StringEnumConverter))]
         public EyeGaze EyeGazeY { get; set; } = EyeGaze.Vector;
 
         public bool HelpBlinkWithEyeSquint { get; set; } = true;
@@ -63,7 +67,8 @@ namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
 
                     if (eyeLookUpLeftN != null || eyeLookDownLeftN != null)
                     {
-                        float eyeOpennessLeft = 1f - meowFaceParam.GetShape(MeowFaceParam.EyeBlinkLeft, 1f).GetValueOrDefault(0f);
+                        float eyeOpennessLeft = GetEyeOpenness(meowFaceParam, HelpBlinkWithEyeSquint,
+                            MeowFaceParam.EyeBlinkLeft, MeowFaceParam.EyeSquintLeft).GetValueOrDefault(1f);
 
                         UnifiedTracking.Data.Eye.Left.Gaze.y = (eyeLookUpLeftN.GetValueOrDefault(0f) -
                             eyeLookDownLeftN.GetValueOrDefault(0f)) * eyeOpennessLeft;
@@ -75,7 +80,8 @@ namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
 
                     if (eyeLookUpRightN != null || eyeLookDownRightN != null)
                     {
-                        float eyeOpennessRight = 1f - meowFaceParam.GetShape(MeowFaceParam.EyeBlinkRight, 1f).GetValueOrDefault(0f);
+                        float eyeOpennessRight = GetEyeOpenness(meowFaceParam, HelpBlinkWithEyeSquint,
+                            MeowFaceParam.EyeBlinkRight, MeowFaceParam.EyeSquintRight).GetValueOrDefault(1f);
 
                         UnifiedTracking.Data.Eye.Right.Gaze.y = (eyeLookUpRightN.GetValueOrDefault(0f) -
                             eyeLookDownRightN.GetValueOrDefault(0f)) * eyeOpennessRight;
@@ -87,38 +93,43 @@ namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
 
         private void UpdateEyeOpenness(MeowFaceParam meowFaceParam)
         {
-            float? eyeBlinkLeftN = meowFaceParam.GetShape(MeowFaceParam.EyeBlinkLeft);
-            if (eyeBlinkLeftN is float eyeBlinkLeft)
-            {
-                float? eyeSquintLeftN = meowFaceParam.GetShape(MeowFaceParam.EyeSquintLeft);
+            float? eyeOpennessLeftN = GetEyeOpenness(meowFaceParam, HelpBlinkWithEyeSquint,
+                MeowFaceParam.EyeBlinkLeft, MeowFaceParam.EyeSquintLeft);
 
-                if (HelpBlinkWithEyeSquint && eyeSquintLeftN is float eyeSquintLeft)
+            if (eyeOpennessLeftN is float eyeOpennessLeft)
+            {
+                UnifiedTracking.Data.Eye.Left.Openness = eyeOpennessLeft;
+            }
+
+            float? eyeOpennessRightN = GetEyeOpenness(meowFaceParam, HelpBlinkWithEyeSquint,
+                MeowFaceParam.EyeBlinkRight, MeowFaceParam.EyeSquintRight);
+
+            if (eyeOpennessRightN is float eyeOpennessRight)
+            {
+                UnifiedTracking.Data.Eye.Right.Openness = eyeOpennessRight;
+            }
+        }
+
+        private static float? GetEyeOpenness(MeowFaceParam meowFaceParam, bool helpBlinkWithEyeSquint,
+            string meowEyeBlinkKey, string meowEyeSquintKey)
+        {
+            float? eyeBlinkN = meowFaceParam.GetShape(meowEyeBlinkKey, 1f);
+            if (eyeBlinkN is float eyeBlink)
+            {
+                float? eyeSquintN = meowFaceParam.GetShape(meowEyeSquintKey, 1f);
+
+                if (helpBlinkWithEyeSquint && eyeSquintN is float eyeSquint)
                 {
-                    UnifiedTracking.Data.Eye.Right.Openness = (float)(1d - Math.Min(1d,
-                        eyeBlinkLeft + Math.Pow(eyeBlinkLeft, 0.33d) * Math.Pow(eyeSquintLeft, 1.25d)));
+                    return (float)(1d - Math.Min(1d, eyeBlink +
+                        Math.Pow(eyeBlink, 0.33d) * Math.Pow(eyeSquint, 1.25d)));
                 }
                 else
                 {
-                    UnifiedTracking.Data.Eye.Right.Openness = 1f - Math.Min(1f, eyeBlinkLeft);
+                    return 1f - Math.Min(1f, eyeBlink);
                 }
             }
 
-
-            float? eyeBlinkRightN = meowFaceParam.GetShape(MeowFaceParam.EyeBlinkRight);
-            if (eyeBlinkRightN is float eyeBlinkRight)
-            {
-                float? eyeSquintRightN = meowFaceParam.GetShape(MeowFaceParam.EyeSquintRight);
-
-                if (HelpBlinkWithEyeSquint && eyeSquintRightN is float eyeSquintRight)
-                {
-                    UnifiedTracking.Data.Eye.Left.Openness = (float)(1d - Math.Min(1d,
-                        eyeBlinkRight + Math.Pow(eyeBlinkRight, 0.33d) * Math.Pow(eyeSquintRight, 1.25d)));
-                }
-                else
-                {
-                    UnifiedTracking.Data.Eye.Left.Openness = 1f - Math.Min(1f, eyeBlinkRight);
-                }
-            }
+            return null;
         }
     }
 }

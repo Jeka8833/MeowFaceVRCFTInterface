@@ -4,9 +4,9 @@ using VRCFaceTracking;
 
 namespace MeowFaceVRCFTInterface.VRCFTMappers
 {
-    public class BrowMapper : IMapperCft
+    public class BrowMapper : MapperCft
     {
-        public void UpdateExpression(MeowFaceParam meowFaceParam)
+        public override void UpdateExpression(MeowFaceParam meowFaceParam)
         {
             // Also MeowFaceParam.BrowInnerUp, maybe it can be used for getting more stable values
             meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.BrowInnerUpRight, MeowFaceParam.BrowInnerUpRight);

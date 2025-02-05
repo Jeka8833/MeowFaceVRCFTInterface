@@ -4,11 +4,11 @@ using VRCFaceTracking;
 
 namespace MeowFaceVRCFTInterface.VRCFTMappers
 {
-    public class CheekMapper : IMapperCft
+    public class CheekMapper : MapperCft
     {
         public bool CheekSquintFromMouthSmile { get; set; } = false;
 
-        public void UpdateExpression(MeowFaceParam meowFaceParam)
+        public override void UpdateExpression(MeowFaceParam meowFaceParam)
         {
             // Blend
             meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.CheekPuffRight, MeowFaceParam.CheekPuff);

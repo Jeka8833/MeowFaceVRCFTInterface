@@ -4,22 +4,22 @@ using VRCFaceTracking.Core.Params.Expressions;
 
 namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
 {
-    public class EyeMapper : IMapperCft
+    public class EyeMapper : MapperCft
     {
-        private const float RadianConst = 0.01745329251994329576923690768488612713442871888541725456097191440171009114f;
+        private const float _radianConst = 0.01745329251994329576923690768488612713442871888541725456097191440171009114f;
 
         public bool EyeGazeX { get; set; } = true;
         public EyeGaze EyeGazeY { get; set; } = EyeGaze.Vector;
 
         public bool HelpBlinkWithEyeSquint { get; set; } = true;
 
-        public void UpdateEye(MeowFaceParam meowFaceParam)
+        public override void UpdateEye(MeowFaceParam meowFaceParam)
         {
             UpdateEyeGaze(meowFaceParam);
             UpdateEyeOpenness(meowFaceParam);
         }
 
-        public void UpdateExpression(MeowFaceParam meowFaceParam)
+        public override void UpdateExpression(MeowFaceParam meowFaceParam)
         {
             meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.EyeSquintRight, MeowFaceParam.EyeSquintRight);
             meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.EyeSquintLeft, MeowFaceParam.EyeSquintLeft);
@@ -35,12 +35,12 @@ namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
                 // Data has wrong polarization
                 if (meowFaceParam.EyeLeft is MeowVector eyeLeft)
                 {
-                    UnifiedTracking.Data.Eye.Left.Gaze.x = eyeLeft.y * RadianConst;
+                    UnifiedTracking.Data.Eye.Left.Gaze.x = eyeLeft.y * _radianConst;
                 }
 
                 if (meowFaceParam.EyeRight is MeowVector eyeRight)
                 {
-                    UnifiedTracking.Data.Eye.Right.Gaze.x = eyeRight.y * RadianConst;
+                    UnifiedTracking.Data.Eye.Right.Gaze.x = eyeRight.y * _radianConst;
                 }
             }
 
@@ -49,12 +49,12 @@ namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
                 case EyeGaze.Vector:    // Data has wrong polarization
                     if (meowFaceParam.EyeLeft is MeowVector eyeLeft1)
                     {
-                        UnifiedTracking.Data.Eye.Left.Gaze.y = -eyeLeft1.x * RadianConst;
+                        UnifiedTracking.Data.Eye.Left.Gaze.y = -eyeLeft1.x * _radianConst;
                     }
 
                     if (meowFaceParam.EyeRight is MeowVector eyeRight1)
                     {
-                        UnifiedTracking.Data.Eye.Right.Gaze.y = -eyeRight1.x * RadianConst;
+                        UnifiedTracking.Data.Eye.Right.Gaze.y = -eyeRight1.x * _radianConst;
                     }
                     break;
                 case EyeGaze.Shape:

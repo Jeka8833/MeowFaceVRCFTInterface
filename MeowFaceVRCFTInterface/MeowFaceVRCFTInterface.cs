@@ -1,8 +1,9 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using MeowFaceVRCFTInterface.Config;
+using MeowFaceVRCFTInterface.Logger;
 using MeowFaceVRCFTInterface.MeowFace;
 using MeowFaceVRCFTInterface.VRCFTMappers;
-using MeowFaceVRCFTInterface.VRCFTMappers.Eye;
 using Microsoft.Extensions.Logging;
 using VRCFaceTracking;
 using VRCFaceTracking.Core.Library;
@@ -11,46 +12,53 @@ namespace MeowFaceVRCFTInterface
 {
     public class MeowFaceVRCFTInterface : ExtTrackingModule
     {
-        private const ushort _port = 12345;
-        private readonly IMapperCft[] _mappers = { new EyeMapper(), new BrowMapper(), new CheekMapper(),
-            new JawMapper(), new LipAndMouthMapper(), new NoseMapper(), new TongueMapper()};
+        private static readonly string _configPath = Path.Combine(
+            VRCFaceTracking.Core.Utils.PersistentDataDirectory, "Configs", "MeowFace", "MeowConfig.json");
 
+        public ILogger MeowLogger { get; private set; } = null!;
+        public ILogger MeowSpamLogger { get; private set; } = null!;
+
+        private ConfigManager _configManager = null!;
         private MeowUdpClient _udpClient = null!;
-        public ILogger SkipSpamLogger { get; private set; } = null!;
 
         public override (bool SupportsEye, bool SupportsExpression) Supported => (true, true);
 
         public override (bool eyeSuccess, bool expressionSuccess) Initialize(bool eyeAvailable, bool expressionAvailable)
         {
-            SkipSpamLogger = new SkipSpamLogger(Logger);
-            _udpClient = new(_port, SkipSpamLogger)
+            MeowLogger = new VrcftExceptionFixerLogger(Logger);
+            MeowSpamLogger = new SkipSpamLogger(MeowLogger);
+
+            _configManager = new(_configPath, this, MeowLogger);
+            _configManager.LoadConfig();
+
+            ushort udpPort = _configManager.Config.MeowFacePort;
+            int udpConnectionTimeoutMillis = _configManager.Config.SearchMeowFaceTimeoutSeconds * 1_000;
+
+            _udpClient = new(udpPort, MeowSpamLogger)
             {
-                ReceiveTimeoutMillis = 60_000
+                ReceiveTimeoutMillis = udpConnectionTimeoutMillis
             };
 
-            Logger.LogInformation("MeowFace interface is waiting for connection.\n" +
+            MeowLogger.LogInformation("MeowFace interface is waiting for connection.\n" +
                 "Please try entering one of the following addresses ({}) in the \"Enter PC IP Address\" field " +
                 "and then set \"Enter PC Port number\" to {}.\n" +
                 "If you fail to do so in 60 seconds, the module will be disabled " +
-                "and you will have to restart the VRCFT application to try to connect again.", string.Join(", ", GetLocalIPAddresses()), _port);
+                "and you will have to restart the VRCFT application to try to connect again.",
+                string.Join(", ", GetLocalIPAddresses()), udpPort);
 
-            if (!_udpClient.TryConnect(60_000))
+            if (!_udpClient.TryConnect(udpConnectionTimeoutMillis))
             {
                 Teardown();
 
                 ModuleInformation.Active = false;
 
-                Logger.LogInformation("The Android MeowFace app failed to connect to this computer in 60 seconds. Disabling the module...");
+                MeowLogger.LogInformation("The Android MeowFace app failed to connect to this computer in 60 seconds. " +
+                    "Disabling the module...");
 
                 return (false, false);
             }
 
-            foreach (IMapperCft mapper in _mappers)
-            {
-                mapper.Initialize(this);
-            }
-
-            _udpClient.ReceiveTimeoutMillis = 10_000;
+            _udpClient.ReceiveTimeoutMillis = _configManager.Config.MeowFaceReadTimeoutMilliseconds;
 
             ModuleInformation.Name = "Meow Face";
 
@@ -65,10 +73,10 @@ namespace MeowFaceVRCFTInterface
             }
             catch (Exception e)
             {
-                Logger.LogWarning(e, "Failed to load MeowFace Icon");
+                MeowLogger.LogWarning(e, "Failed to load MeowFace Icon");
             }
 
-            Logger.LogInformation("Android MeowFace app is connected successfully!");
+            MeowLogger.LogInformation("Android MeowFace app is connected successfully!");
 
             return (eyeAvailable, expressionAvailable);
         }
@@ -87,8 +95,10 @@ namespace MeowFaceVRCFTInterface
                 MeowFaceParam? meowFaceParamNullable = _udpClient.TryRequest();
                 if (meowFaceParamNullable is MeowFaceParam meowFaceParam)
                 {
-                    foreach (IMapperCft mapper in _mappers)
+                    foreach (MapperCft mapper in _configManager.Mappers)
                     {
+                        if (!mapper.IsEnabled) continue;
+
                         if (ModuleInformation.UsingEye)
                         {
                             mapper.UpdateEye(meowFaceParam);
@@ -103,7 +113,7 @@ namespace MeowFaceVRCFTInterface
             }
             catch (Exception e)
             {
-                SkipSpamLogger.LogWarning(e, "Exception in Module Update Loop");
+                MeowSpamLogger.LogWarning(e, "Exception in Module Update Loop");
             }
         }
 
@@ -113,7 +123,7 @@ namespace MeowFaceVRCFTInterface
             {
                 _udpClient.Dispose();
 
-                Logger.LogInformation("UPD Socket Closed");
+                MeowLogger.LogInformation("UPD Socket Closed");
             }
         }
 

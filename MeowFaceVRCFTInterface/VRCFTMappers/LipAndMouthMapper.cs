@@ -4,9 +4,9 @@ using VRCFaceTracking;
 
 namespace MeowFaceVRCFTInterface.VRCFTMappers
 {
-    public class LipAndMouthMapper : IMapperCft
+    public class LipAndMouthMapper : MapperCft
     {
-        public void UpdateExpression(MeowFaceParam meowFaceParam)
+        public override void UpdateExpression(MeowFaceParam meowFaceParam)
         {
             meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthUpperUpRight, MeowFaceParam.MouthUpperUpRight);
             meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthUpperUpLeft, MeowFaceParam.MouthUpperUpLeft);

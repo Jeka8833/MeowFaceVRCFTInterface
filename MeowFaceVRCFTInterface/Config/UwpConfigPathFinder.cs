@@ -1,69 +1,62 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace MeowFaceVRCFTInterface.Config
+namespace MeowFaceVRCFTInterface.Config;
+
+public static class UwpConfigPathFinder
 {
-    public class UwpConfigPathFinder
+    public static void PrintConfigPath(ILogger logger, string configPath)
     {
-        public static void PrintConfigPath(ILogger logger, string configPath)
+        if (!File.Exists(configPath))
         {
-            string? uwpPath = GetUwpPath(configPath);
+            logger.LogWarning("The Meow Configuration file is not found");
 
-            string paths = "";
-            if (uwpPath == null)
-            {
-                logger.LogInformation("UWP path not found, are you debugging VRCFT or Windows.SDK.NET version in VRCFT changed?");
-            }
-            else if (File.Exists(uwpPath))
-            {
-                paths = uwpPath;
-            }
-
-            if (File.Exists(configPath))
-            {
-                if (paths.Length != 0) paths += "or\n";
-                paths += $"\n{configPath}";
-            }
-
-            if (paths.Length == 0)
-            {
-                logger.LogWarning("The Meow Configuration file is not found");
-            }
-            else
-            {
-                logger.LogInformation("The Meow Configuration file is located in: {}", paths);
-            }
+            return;
         }
 
-        private static string? GetUwpPath(string originalPath)
+        string? uwpPath = GetUwpPath(configPath);
+
+        if (uwpPath == null)
         {
-            // If the Windows.SDK.NET version does not match, an Exception will be thrown.
-            try
+            logger.LogInformation(
+                "UWP path not found, are you debugging VRCFT or Windows.SDK.NET version in VRCFT changed?\n" +
+                "Maybe Meow Configuration file located in: {}", configPath);
+        }
+        else
+        {
+            logger.LogInformation("The Meow Configuration file is located in: {}", uwpPath);
+        }
+    }
+
+    private static string? GetUwpPath(string originalPath)
+    {
+        // If the Windows.SDK.NET version does not match, an Exception will be thrown.
+        try
+        {
+            string regularRoamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+            string? subtractedPath = SubtractPath(originalPath, regularRoamingFolder);
+            if (subtractedPath != null)
             {
-                string regularRoamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                string uwpLocalFolder = Windows.Storage.ApplicationData.Current.LocalCacheFolder.Path;
 
-                string? substractedPathN = SubstractPath(originalPath, regularRoamingFolder);
-                if (substractedPathN is string substractedPath)
-                {
-                    string uwpLocalFolder = Windows.Storage.ApplicationData.Current.LocalCacheFolder.Path;
-
-                    return Path.Combine(uwpLocalFolder, "Roaming", substractedPath);
-                }
+                return Path.Combine(uwpLocalFolder, "Roaming", subtractedPath);
             }
-            catch (Exception)
-            {
-            }
-
-            return null;
+        }
+        catch (Exception)
+        {
+            // ignored
         }
 
-        private static string? SubstractPath(string fullPath, string partPath)
-        {
-            if (fullPath.StartsWith(partPath, StringComparison.CurrentCultureIgnoreCase))
-            {
-                return fullPath[partPath.Length..].TrimStart(Path.DirectorySeparatorChar);
-            }
+        return null;
+    }
 
-            return null;
+    private static string? SubtractPath(string fullPath, string partPath)
+    {
+        if (fullPath.StartsWith(partPath, StringComparison.CurrentCultureIgnoreCase))
+        {
+            return fullPath[partPath.Length..].TrimStart(Path.DirectorySeparatorChar);
         }
+
+        return null;
     }
 }

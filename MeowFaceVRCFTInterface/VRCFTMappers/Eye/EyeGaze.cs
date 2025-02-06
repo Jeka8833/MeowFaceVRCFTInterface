@@ -1,9 +1,8 @@
-﻿namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye
+﻿namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye;
+
+public enum EyeGaze
 {
-    public enum EyeGaze
-    {
-        None = 0,
-        Vector = 1,
-        Shape = 2,
-    }
+    None = 0,
+    Vector = 1,
+    Shape = 2
 }

@@ -2,13 +2,13 @@
 using VRCFaceTracking;
 using MeowFaceVRCFTInterface.MeowFace;
 
-namespace MeowFaceVRCFTInterface.VRCFTMappers
+namespace MeowFaceVRCFTInterface.VRCFTMappers;
+
+public class TongueMapper : MapperCft
 {
-    public class TongueMapper : MapperCft
+    public override void UpdateExpression(MeowFaceParam meowFaceParam)
     {
-        public override void UpdateExpression(MeowFaceParam meowFaceParam)
-        {
-            meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.TongueOut, MeowFaceParam.TongueOut);
-        }
+        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.TongueOut,
+            MeowFaceParam.TongueOut);
     }
 }

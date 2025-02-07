@@ -1,8 +1,8 @@
-﻿using VRCFaceTracking.Core.Params.Expressions;
+﻿using MeowFaceVRCFTInterface.MeowFace;
 using VRCFaceTracking;
-using MeowFaceVRCFTInterface.MeowFace;
+using VRCFaceTracking.Core.Params.Expressions;
 
-namespace MeowFaceVRCFTInterface.VRCFTMappers;
+namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
 
 public class TongueMapper : MapperCft
 {

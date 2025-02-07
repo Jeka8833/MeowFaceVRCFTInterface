@@ -9,26 +9,26 @@ public record MeowFaceDto
      *
      * public int Hotkey { get; init; }
      * public bool FaceFound { get; init; }
-     * public MeowVector Rotation { get; init; }
      * public MeowVector Position { get; init; }
-     * public MeowVector VNyanPos { get; init; }
      */
 
     public long Timestamp { get; init; } = 0;
 
+    public MeowVector Rotation { get; init; } = MeowVector.EmptyValue;
     public MeowVector EyeLeft { get; init; } = MeowVector.EmptyValue;
     public MeowVector EyeRight { get; init; } = MeowVector.EmptyValue;
+    public MeowVector VNyanPos { get; init; } = MeowVector.EmptyValue;
     public MeowShape[] BlendShapes { get; init; } = Array.Empty<MeowShape>();
 }
 
 public readonly record struct MeowVector(
     [JsonProperty(PropertyName = "x")] float X,
-    [JsonProperty(PropertyName = "y")] float Y
-    /*, [JsonProperty(PropertyName = "z")] float Z*/) // Z is not used in this program
+    [JsonProperty(PropertyName = "y")] float Y,
+    [JsonProperty(PropertyName = "z")] float Z)
 {
-    public static readonly MeowVector EmptyValue = new(float.NaN, float.NaN);
+    public static readonly MeowVector EmptyValue = new(float.NaN, float.NaN, float.NaN);
 
-    public bool IsValid() => float.IsFinite(X) && float.IsFinite(Y);
+    public bool IsValid() => float.IsFinite(X) && float.IsFinite(Y) && float.IsFinite(Z);
 }
 
 public readonly record struct MeowShape(

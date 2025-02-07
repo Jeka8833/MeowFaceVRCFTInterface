@@ -1,4 +1,4 @@
-﻿namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye;
+﻿namespace MeowFaceVRCFTInterface.VRCFT.Mappers.Eye;
 
 public enum EyeGaze
 {

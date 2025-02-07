@@ -1,8 +1,8 @@
 ﻿using MeowFaceVRCFTInterface.MeowFace;
-using VRCFaceTracking.Core.Params.Expressions;
 using VRCFaceTracking;
+using VRCFaceTracking.Core.Params.Expressions;
 
-namespace MeowFaceVRCFTInterface.VRCFTMappers;
+namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
 
 public class BrowMapper : MapperCft
 {

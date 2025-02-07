@@ -64,6 +64,10 @@ public class MeowUdpClient : IDisposable
                     lastPacket = currentPacket;
                 }
             }
+            catch (ThreadInterruptedException)
+            {
+                throw;
+            }
             catch (SocketException e)
             {
                 _logger.LogWarning(e, "Meow UDP Socket error, is MeowFace app opened and connected?\n" +

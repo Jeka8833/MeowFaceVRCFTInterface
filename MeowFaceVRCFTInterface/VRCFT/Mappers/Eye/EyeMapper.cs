@@ -4,7 +4,7 @@ using Newtonsoft.Json.Converters;
 using VRCFaceTracking;
 using VRCFaceTracking.Core.Params.Expressions;
 
-namespace MeowFaceVRCFTInterface.VRCFTMappers.Eye;
+namespace MeowFaceVRCFTInterface.VRCFT.Mappers.Eye;
 
 public class EyeMapper : MapperCft
 {

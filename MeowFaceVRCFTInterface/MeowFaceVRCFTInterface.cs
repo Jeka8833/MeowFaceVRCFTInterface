@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using MeowFaceVRCFTInterface.Config;
 using MeowFaceVRCFTInterface.Logger;
 using MeowFaceVRCFTInterface.MeowFace;
-using MeowFaceVRCFTInterface.VRCFTMappers;
+using MeowFaceVRCFTInterface.VRCFT.Mappers;
 using Microsoft.Extensions.Logging;
 using VRCFaceTracking;
 using VRCFaceTracking.Core.Library;
@@ -29,6 +29,8 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
     private ConfigManager _configManager = null!;
     private MeowUdpClient _udpClient = null!;
 
+    private ModuleState _previousStatus = ModuleState.Uninitialized;
+
     public override (bool SupportsEye, bool SupportsExpression) Supported => (true, true);
 
     public override (bool eyeSuccess, bool expressionSuccess) Initialize(bool eyeAvailable, bool expressionAvailable)
@@ -37,9 +39,7 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
         MeowSpamLogger = new SkipSpamLogger(MeowLogger);
 
         _configManager = new ConfigManager(ConfigPath, this, MeowLogger);
-        _configManager.LoadConfig();
-
-        UwpConfigPathFinder.PrintConfigPath(MeowLogger, ConfigPath);
+        _configManager.LoadAndMigrateConfig();
 
         ushort udpPort = _configManager.Config.MeowFacePort;
         int udpConnectionTimeoutMillis = _configManager.Config.SearchMeowFaceTimeoutSeconds * 1_000;
@@ -69,8 +69,6 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
             return (false, false);
         }
 
-        _udpClient.ReceiveTimeoutMillis = _configManager.Config.MeowFaceReadTimeoutMilliseconds;
-
         ModuleInformation.Name = "Meow Face";
 
         try
@@ -98,9 +96,29 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
         {
             if (Status != ModuleState.Active || !(ModuleInformation.UsingEye || ModuleInformation.UsingExpression))
             {
+                Thread.CurrentThread.IsBackground = true;
                 Thread.Sleep(100);
 
                 return;
+            }
+
+            if (_previousStatus != Status)
+            {
+                if (Status == ModuleState.Active)
+                {
+                    Thread.CurrentThread.IsBackground = true;
+
+                    if (_previousStatus != ModuleState.Uninitialized)
+                    {
+                        _configManager.LoadConfig();
+                    }
+
+                    _udpClient.ReceiveTimeoutMillis = _configManager.Config.MeowFaceReadTimeoutMilliseconds;
+
+                    MeowLogger.LogInformation("Module started");
+                }
+
+                _previousStatus = Status;
             }
 
             MeowFaceParam? meowFaceParam = _udpClient.TryRequest();
@@ -121,6 +139,9 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
                 }
             }
         }
+        catch (ThreadInterruptedException) // VRCFT doesn't send an interrupt when it wants to stop the module? ((
+        {
+        }
         catch (Exception e)
         {
             MeowSpamLogger.LogWarning(e, "Exception in Module Update Loop");
@@ -129,8 +150,8 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
 
     public override void Teardown()
     {
-        if (_udpClient == null) return;
-        
+        if (_udpClient == null) return; // _udpClient can be null, IDE too smart
+
         _udpClient.Dispose();
 
         MeowLogger.LogInformation("UPD Socket Closed");
@@ -138,9 +159,16 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
 
     private static IOrderedEnumerable<IPAddress> GetLocalIpAddresses()
     {
-        return Dns.GetHostEntry(Dns.GetHostName())
-            .AddressList
-            .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
-            .OrderBy(ip => ip.ToString().StartsWith("192.168.") ? -1 : 0);
+        try
+        {
+            return Dns.GetHostEntry(Dns.GetHostName())
+                .AddressList
+                .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                .OrderByDescending(ip => ip.ToString().StartsWith("192.168."));
+        }
+        catch (Exception)
+        {
+            return Enumerable.Empty<IPAddress>().OrderBy(_ => 0);
+        }
     }
 }

@@ -2,39 +2,57 @@
 
 namespace MeowFaceVRCFTInterface.Config;
 
-public static class UwpConfigPathFinder
+public class UwpConfigPathFinder
 {
-    public static void PrintConfigPath(ILogger logger, string configPath)
+    private readonly string _configPath;
+    private readonly ILogger _logger;
+
+    private bool _isPrinted;
+
+    public UwpConfigPathFinder(string configPath, ILogger logger)
     {
-        if (!File.Exists(configPath))
+        _configPath = configPath;
+        _logger = logger;
+    }
+
+    public void PrintConfigLocationOnce()
+    {
+        if (_isPrinted) return;
+        _isPrinted = true;
+
+        PrintLocation();
+    }
+
+    private void PrintLocation()
+    {
+        if (!File.Exists(_configPath))
         {
-            logger.LogWarning("The Meow Configuration file is not found");
+            _logger.LogWarning("The Meow Configuration file is not found, try to find in: {}", _configPath);
 
             return;
         }
 
-        string? uwpPath = GetUwpPath(configPath);
+        string? uwpPath = GetUwpPath();
 
         if (uwpPath == null)
         {
-            logger.LogInformation(
+            _logger.LogInformation(
                 "UWP path not found, are you debugging VRCFT or Windows.SDK.NET version in VRCFT changed?\n" +
-                "Maybe Meow Configuration file located in: {}", configPath);
+                "Maybe Meow Configuration file located in: {}", _configPath);
         }
         else
         {
-            logger.LogInformation("The Meow Configuration file is located in: {}", uwpPath);
+            _logger.LogInformation("The Meow Configuration file is located in: {}", uwpPath);
         }
     }
 
-    private static string? GetUwpPath(string originalPath)
+    private string? GetUwpPath()
     {
-        // If the Windows.SDK.NET version does not match, an Exception will be thrown.
         try
         {
             string regularRoamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-            string? subtractedPath = SubtractPath(originalPath, regularRoamingFolder);
+            string? subtractedPath = SubtractPath(_configPath, regularRoamingFolder);
             if (subtractedPath != null)
             {
                 string uwpLocalFolder = Windows.Storage.ApplicationData.Current.LocalCacheFolder.Path;
@@ -42,9 +60,9 @@ public static class UwpConfigPathFinder
                 return Path.Combine(uwpLocalFolder, "Roaming", subtractedPath);
             }
         }
-        catch (Exception)
+        catch (Exception e) // If the Windows.SDK.NET version does not match, an Exception will be thrown.
         {
-            // ignored
+            _logger.LogDebug(e, "Get UWP Location fail");
         }
 
         return null;

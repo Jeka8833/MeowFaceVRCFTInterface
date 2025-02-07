@@ -1,7 +1,7 @@
 ﻿using MeowFaceVRCFTInterface.MeowFace;
 using Newtonsoft.Json;
 
-namespace MeowFaceVRCFTInterface.VRCFTMappers;
+namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
 
 public abstract class MapperCft
 {

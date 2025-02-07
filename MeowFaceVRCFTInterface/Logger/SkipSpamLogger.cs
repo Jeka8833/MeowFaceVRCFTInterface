@@ -5,7 +5,7 @@ namespace MeowFaceVRCFTInterface.Logger;
 
 public class SkipSpamLogger : ILogger
 {
-    private readonly object _mutex = new();
+    private readonly object _logLock = new();
     private readonly ILogger _baseLogger;
 
     public long SendEveryMillis { get; set; } = 5_000;
@@ -36,7 +36,7 @@ public class SkipSpamLogger : ILogger
     public void Log<TState>(LogLevel logLevel, EventId eventId,
         TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        lock (_mutex)
+        lock (_logLock)
         {
             if (Stopwatch.GetTimestamp() - _nextAllowSendMillis >= 0)
             {

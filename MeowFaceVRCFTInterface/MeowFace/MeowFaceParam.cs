@@ -62,9 +62,10 @@ public readonly struct MeowFaceParam
 
     public const string TongueOut = "tongueOut";
 
-
     public MeowVector? EyeLeft { get; }
     public MeowVector? EyeRight { get; }
+    public MeowVector? HeadPos { get; }
+    public MeowVector? HeadRotation { get; }
 
     private readonly Dictionary<string, float> _shapeMap;
 
@@ -78,6 +79,16 @@ public readonly struct MeowFaceParam
         if (meowDto.EyeRight.IsValid())
         {
             EyeRight = meowDto.EyeRight;
+        }
+
+        if (meowDto.VNyanPos.IsValid())
+        {
+            HeadPos = meowDto.VNyanPos;
+        }
+
+        if (meowDto.Rotation.IsValid())
+        {
+            HeadRotation = meowDto.Rotation;
         }
 
         _shapeMap = ToShapeMap(meowDto.BlendShapes);

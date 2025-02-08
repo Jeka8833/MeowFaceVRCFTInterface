@@ -4,6 +4,8 @@ namespace MeowFaceVRCFTInterface.Config;
 
 public class UwpConfigPathFinder
 {
+    public string? UwpConfigPath { get; }
+    
     private readonly string _configPath;
     private readonly ILogger _logger;
 
@@ -13,6 +15,8 @@ public class UwpConfigPathFinder
     {
         _configPath = configPath;
         _logger = logger;
+
+        UwpConfigPath = GetUwpPath();
     }
 
     public void PrintConfigLocationOnce()
@@ -32,9 +36,7 @@ public class UwpConfigPathFinder
             return;
         }
 
-        string? uwpPath = GetUwpPath();
-
-        if (uwpPath == null)
+        if (UwpConfigPath == null)
         {
             _logger.LogInformation(
                 "UWP path not found, are you debugging VRCFT or Windows.SDK.NET version in VRCFT changed?\n" +
@@ -42,7 +44,7 @@ public class UwpConfigPathFinder
         }
         else
         {
-            _logger.LogInformation("The Meow Configuration file is located in: {}", uwpPath);
+            _logger.LogInformation("The Meow Configuration file is located in: {}", UwpConfigPath);
         }
     }
 

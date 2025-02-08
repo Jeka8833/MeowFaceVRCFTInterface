@@ -12,11 +12,6 @@ public class VrcftExceptionFixerLogger : ILogger
         _baseLogger = logger;
     }
 
-    public ILogger GetRegularLogger()
-    {
-        return _baseLogger;
-    }
-
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull
     {
         return _baseLogger.BeginScope(state);

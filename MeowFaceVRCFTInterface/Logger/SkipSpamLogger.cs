@@ -5,10 +5,10 @@ namespace MeowFaceVRCFTInterface.Logger;
 
 public class SkipSpamLogger : ILogger
 {
+    public long SendEveryMillis { get; set; } = 5_000;
+
     private readonly object _logLock = new();
     private readonly ILogger _baseLogger;
-
-    public long SendEveryMillis { get; set; } = 5_000;
 
     private long _nextAllowSendMillis = Stopwatch.GetTimestamp();
     private int _skippedCount;
@@ -16,11 +16,6 @@ public class SkipSpamLogger : ILogger
     public SkipSpamLogger(ILogger logger)
     {
         _baseLogger = logger;
-    }
-
-    public ILogger GetRegularLogger()
-    {
-        return _baseLogger;
     }
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull

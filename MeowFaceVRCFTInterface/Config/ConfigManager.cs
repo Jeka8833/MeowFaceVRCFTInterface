@@ -34,40 +34,28 @@ public class ConfigManager
 
     public void LoadAndMigrateConfig()
     {
-        MeowConfig config = ReadConfig() ?? new MeowConfig();
+        MeowConfig? config = ReadConfig();
+        if (config != null)
+        {
+            _migrationManager.TryMigrate(config);
+            ChangeConfigAndDisableBrokenMappers(config);
 
-        _migrationManager.TryMigrate(config);
-
-        ChangeConfigAndDisableBrokenMappers(config);
+            _logger.LogInformation("Config loaded");
+        }
 
         SaveConfigAsync();
     }
 
     public void LoadConfig()
     {
-        try
-        {
-            if (File.Exists(_configPath))
-            {
-                MeowConfig? data = JsonConvert.DeserializeObject<MeowConfig>(File.ReadAllText(_configPath));
-                if (data != null)
-                {
-                    ChangeConfigAndDisableBrokenMappers(data);
+        MeowConfig? config = ReadConfig();
+        if (config == null) return;
 
-                    _logger.LogInformation("Config loaded");
-                }
-                else
-                {
-                    _logger.LogWarning("Failed to load configuration, data equals null.\n" +
-                                       "All configuration data from MeowConfig will be deleted, sorry");
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            _logger.LogWarning(e, "Failed to load configuration.\n" +
-                                  "All configuration data from MeowConfig will be deleted, sorry");
-        }
+        ChangeConfigAndDisableBrokenMappers(config);
+
+        _logger.LogInformation("Config loaded");
+
+        SaveConfigAsync();
     }
 
     public void SaveConfigAsync()
@@ -79,16 +67,28 @@ public class ConfigManager
             {
                 try
                 {
-                    TryCreateConfigFolder();
-
                     _migrationManager.UpdateConfigVersion(Config);
 
                     string configJson = JsonConvert.SerializeObject(Config, Formatting.Indented);
-                    File.WriteAllText(_configPath, configJson, Encoding.UTF8);
 
-                    _logger.LogDebug("Config saved");
+                    bool saved = false;
+                    if (_uwpConfigPathFinder.UwpConfigPath != null)
+                    {
+                        try
+                        {
+                            WriteConfig(configJson, _uwpConfigPathFinder.UwpConfigPath);
+                            saved = true;
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogDebug(e, "First try to write config has failed");
+                        }
+                    }
 
-                    _uwpConfigPathFinder.PrintConfigLocationOnce();
+                    if (!saved)
+                    {
+                        WriteConfig(configJson, _configPath);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -111,7 +111,8 @@ public class ConfigManager
         {
             if (File.Exists(_configPath))
             {
-                MeowConfig? data = JsonConvert.DeserializeObject<MeowConfig>(File.ReadAllText(_configPath));
+                string jsonText = File.ReadAllText(_configPath, Encoding.UTF8);
+                MeowConfig? data = JsonConvert.DeserializeObject<MeowConfig>(jsonText);
                 if (data == null)
                 {
                     _logger.LogWarning("Failed to load configuration, data equals null.\n" +
@@ -130,6 +131,17 @@ public class ConfigManager
         return null;
     }
 
+    /// <exception cref="Exception"></exception>
+    private void WriteConfig(string configJson, string configPath)
+    {
+        TryCreateConfigFolder(configPath);
+        File.WriteAllText(configPath, configJson, Encoding.UTF8);
+
+        _logger.LogDebug("Config saved");
+
+        _uwpConfigPathFinder.PrintConfigLocationOnce();
+    }
+
     private void ChangeConfigAndDisableBrokenMappers(MeowConfig config)
     {
         MapperCft[] newList = config.GetAllMappers();
@@ -146,8 +158,8 @@ public class ConfigManager
             {
                 mapper.IsMapperCrashed = true;
 
-                _logger.LogWarning(e,
-                    "Failed to initialize mapper: {}, Disabling it...", mapper.GetType().Name);
+                _logger.LogWarning("Failed to initialize mapper: {}, Disabling it...", mapper.GetType().Name);
+                _logger.LogDebug(e, "Additional StackTrace");
             }
         }
 
@@ -155,11 +167,11 @@ public class ConfigManager
         Mappers = newList;
     }
 
-    private void TryCreateConfigFolder()
+    private void TryCreateConfigFolder(string configPath)
     {
         try
         {
-            string? directory = Path.GetDirectoryName(_configPath);
+            string? directory = Path.GetDirectoryName(configPath);
             if (string.IsNullOrEmpty(directory))
             {
                 _logger.LogWarning("Are you trying to create a config in the root directory?");

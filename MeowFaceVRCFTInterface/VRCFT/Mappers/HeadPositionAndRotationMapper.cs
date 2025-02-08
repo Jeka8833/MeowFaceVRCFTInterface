@@ -19,11 +19,11 @@ public class HeadPositionAndRotationMapper : MapperCft
 
     public override void UpdateExpression(MeowFaceParam meowFaceParam)
     {
-        if (meowFaceParam.HeadPos.HasValue)
+        if (meowFaceParam.HeadPosition.HasValue)
         {
-            UnifiedTracking.Data.Head.HeadPosX = meowFaceParam.HeadPos.Value.X;
-            UnifiedTracking.Data.Head.HeadPosY = meowFaceParam.HeadPos.Value.Y;
-            UnifiedTracking.Data.Head.HeadPosZ = meowFaceParam.HeadPos.Value.Z;
+            UnifiedTracking.Data.Head.HeadPosX = meowFaceParam.HeadPosition.Value.X;
+            UnifiedTracking.Data.Head.HeadPosY = meowFaceParam.HeadPosition.Value.Y;
+            UnifiedTracking.Data.Head.HeadPosZ = meowFaceParam.HeadPosition.Value.Z;
         }
 
         if (meowFaceParam.HeadRotation.HasValue)
@@ -33,8 +33,8 @@ public class HeadPositionAndRotationMapper : MapperCft
             UnifiedTracking.Data.Head.HeadYaw = meowFaceParam.HeadRotation.Value.X * RadianConst;
         }
 
-        _module.MeowSpamLogger.LogInformation("HeadPosX: {}, HeadPosY: {}, HeadPosZ: {}, HeadPitch: {}, HeadRoll: {}," +
-                                              " HeadYaw: {}",
+        _module.MeowSpamLogger.LogInformation(
+            "HeadPosX: {}, HeadPosY: {}, HeadPosZ: {}, HeadPitch: {}, HeadRoll: {}, HeadYaw: {}",
             UnifiedTracking.Data.Head.HeadPosX, UnifiedTracking.Data.Head.HeadPosY, UnifiedTracking.Data.Head.HeadPosZ,
             UnifiedTracking.Data.Head.HeadPitch, UnifiedTracking.Data.Head.HeadRoll, UnifiedTracking.Data.Head.HeadYaw);
     }

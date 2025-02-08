@@ -13,6 +13,7 @@ public class MeowUdpClient : IDisposable
     private readonly UdpClient _udpClient;
     private readonly ILogger _logger;
 
+    public ushort SocketPort { get; private set; }
     private long _lastTimestamp;
 
     public int ReceiveTimeoutMillis
@@ -21,13 +22,19 @@ public class MeowUdpClient : IDisposable
         set => _udpClient.Client.ReceiveTimeout = value;
     }
 
+    /// <summary>
+    /// The port you passed may be different from the one on which the socket will be opened.
+    /// You can get an active port via MeowUdpClient.Port
+    /// </summary>
+    /// <exception cref="Exception">If UDP Socket can't be opened</exception>
     public MeowUdpClient(ushort port, ILogger logger)
     {
-        _udpClient = new UdpClient(port);
+        SocketPort = port;
+        _logger = logger;
+
+        _udpClient = TryCreateUdpSocket();
 
         ReceiveTimeoutMillis = 10_000;
-
-        _logger = logger;
     }
 
     public bool TryConnect(long connectTimeoutMillis)
@@ -70,8 +77,9 @@ public class MeowUdpClient : IDisposable
             }
             catch (SocketException e)
             {
-                _logger.LogWarning(e, "Meow UDP Socket error, is MeowFace app opened and connected?\n" +
-                                      "Disable the module via the VRCFT interface to stop spamming the logs.");
+                _logger.LogWarning("Meow UDP Socket error, is MeowFace app opened and connected?\n" +
+                                   "Disable the module via the VRCFT interface to stop spamming the logs.");
+                _logger.LogDebug(e, "Additional StackTrace");
 
                 Thread.Sleep(1);
             }
@@ -98,5 +106,27 @@ public class MeowUdpClient : IDisposable
         }
 
         _udpClient.Dispose();
+    }
+
+    /// <exception cref="Exception">If it can't create UDP Socket</exception>
+    private UdpClient TryCreateUdpSocket()
+    {
+        for (int i = 0; i <= 0xFFFF; i++)
+        {
+            try
+            {
+                return new UdpClient(SocketPort);
+            }
+            catch (SocketException socketException)
+            {
+                if (socketException.SocketErrorCode != SocketError.AddressAlreadyInUse) throw;
+
+                _logger.LogInformation("UDP port {} is busy, the next one will be used!", SocketPort);
+
+                SocketPort++;
+            }
+        }
+
+        throw new Exception("All ports are busy, how?");
     }
 }

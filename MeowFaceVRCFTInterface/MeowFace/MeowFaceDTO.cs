@@ -14,17 +14,19 @@ public record MeowFaceDto
 
     public long Timestamp { get; init; } = 0;
 
-    public MeowVector Rotation { get; init; } = MeowVector.EmptyValue;
     public MeowVector EyeLeft { get; init; } = MeowVector.EmptyValue;
     public MeowVector EyeRight { get; init; } = MeowVector.EmptyValue;
+    public MeowVector Rotation { get; init; } = MeowVector.EmptyValue;
     public MeowVector VNyanPos { get; init; } = MeowVector.EmptyValue;
+
     public MeowShape[] BlendShapes { get; init; } = Array.Empty<MeowShape>();
 }
 
 public readonly record struct MeowVector(
     [JsonProperty(PropertyName = "x")] float X,
     [JsonProperty(PropertyName = "y")] float Y,
-    [JsonProperty(PropertyName = "z")] float Z)
+    [JsonProperty(PropertyName = "z")] float Z
+)
 {
     public static readonly MeowVector EmptyValue = new(float.NaN, float.NaN, float.NaN);
 

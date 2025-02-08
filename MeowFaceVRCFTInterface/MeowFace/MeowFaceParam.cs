@@ -64,7 +64,7 @@ public readonly struct MeowFaceParam
 
     public MeowVector? EyeLeft { get; }
     public MeowVector? EyeRight { get; }
-    public MeowVector? HeadPos { get; }
+    public MeowVector? HeadPosition { get; }
     public MeowVector? HeadRotation { get; }
 
     private readonly Dictionary<string, float> _shapeMap;
@@ -83,7 +83,7 @@ public readonly struct MeowFaceParam
 
         if (meowDto.VNyanPos.IsValid())
         {
-            HeadPos = meowDto.VNyanPos;
+            HeadPosition = meowDto.VNyanPos;
         }
 
         if (meowDto.Rotation.IsValid())
@@ -112,8 +112,8 @@ public readonly struct MeowFaceParam
 
     public override string ToString()
     {
-        return "{EyeLeft: " + EyeLeft + ", EyeRight: " +
-               EyeRight + ", _shapeMap: " + string.Join(", ", _shapeMap) + "}";
+        return "{EyeLeft: " + EyeLeft + ", EyeRight: " + EyeRight + ", HeadPosition: " + HeadPosition +
+               ", HeadRotation: " + HeadRotation + ", _shapeMap: " + string.Join(", ", _shapeMap) + "}";
     }
 
     private static Dictionary<string, float> ToShapeMap(MeowShape[] meowShapes)

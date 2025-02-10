@@ -1,9 +1,9 @@
 ﻿using MeowFaceVRCFTInterface.MeowFace;
 using Newtonsoft.Json;
 
-namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
+namespace MeowFaceVRCFTInterface.Core;
 
-public abstract class MapperCft
+public abstract class MapperBase : IDisposable
 {
     public bool IsEnabled { get; set; } = true;
 
@@ -18,6 +18,10 @@ public abstract class MapperCft
     }
 
     public virtual void UpdateExpression(MeowFaceParam meowFaceParam)
+    {
+    }
+
+    public virtual void Dispose()
     {
     }
 }

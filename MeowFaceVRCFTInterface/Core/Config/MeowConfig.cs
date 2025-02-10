@@ -1,8 +1,7 @@
 ﻿using MeowFaceVRCFTInterface.VRCFT.Mappers;
-using MeowFaceVRCFTInterface.VRCFT.Mappers.Eye;
 using Newtonsoft.Json;
 
-namespace MeowFaceVRCFTInterface.Config;
+namespace MeowFaceVRCFTInterface.Core.Config;
 
 public class MeowConfig
 {
@@ -22,9 +21,9 @@ public class MeowConfig
     public TongueMapper TongueMapper { get; set; } = new();
     public HeadPositionAndRotationMapper HeadPositionAndRotationMapper { get; set; } = new();
 
-    public MapperCft[] GetAllMappers()
+    public MapperBase[] GetAllMappers()
     {
-        return new MapperCft[]
+        return new MapperBase[]
         {
             EyeMapper, BrowMapper, CheekMapper, JawMapper, LipAndMouthMapper, NoseMapper, TongueMapper,
             HeadPositionAndRotationMapper

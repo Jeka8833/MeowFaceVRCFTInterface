@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace MeowFaceVRCFTInterface.Logger;
+namespace MeowFaceVRCFTInterface.Core.Logger;
 
 // If they fix it, it will be easier to remove this extension.
 public class VrcftExceptionFixerLogger : ILogger

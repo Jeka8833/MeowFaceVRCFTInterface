@@ -1,4 +1,5 @@
-﻿using VRCFaceTracking.Core.Params.Data;
+﻿using System.Numerics;
+using VRCFaceTracking.Core.Params.Data;
 using VRCFaceTracking.Core.Params.Expressions;
 
 namespace MeowFaceVRCFTInterface.MeowFace;
@@ -62,10 +63,10 @@ public readonly struct MeowFaceParam
 
     public const string TongueOut = "tongueOut";
 
-    public MeowVector? EyeLeft { get; }
-    public MeowVector? EyeRight { get; }
-    public MeowVector? HeadPosition { get; }
-    public MeowVector? HeadRotation { get; }
+    public Vector2? EyeLeft { get; }
+    public Vector2? EyeRight { get; }
+    public Vector3? HeadPosition { get; }
+    public Vector3? HeadRotation { get; }
 
     private readonly Dictionary<string, float> _shapeMap;
 
@@ -73,34 +74,34 @@ public readonly struct MeowFaceParam
     {
         if (meowDto.EyeLeft.IsValid())
         {
-            EyeLeft = meowDto.EyeLeft;
+            EyeLeft = new Vector2(meowDto.EyeLeft.X, meowDto.EyeLeft.Y);
         }
 
         if (meowDto.EyeRight.IsValid())
         {
-            EyeRight = meowDto.EyeRight;
+            EyeRight = new Vector2(meowDto.EyeRight.X, meowDto.EyeRight.Y);
         }
 
         if (meowDto.VNyanPos.IsValid())
         {
-            HeadPosition = meowDto.VNyanPos;
+            HeadPosition = new Vector3(meowDto.VNyanPos.X, meowDto.VNyanPos.Y, meowDto.VNyanPos.Z);
         }
 
         if (meowDto.Rotation.IsValid())
         {
-            HeadRotation = meowDto.Rotation;
+            HeadRotation = new Vector3(meowDto.Rotation.X, meowDto.Rotation.Y, meowDto.Rotation.Z);
         }
 
         _shapeMap = ToShapeMap(meowDto.BlendShapes);
     }
 
-    public float? GetShape(string key, float maxValue = float.MaxValue)
+    public float? GetShape(string key, float maxValue = 1f)
     {
         return _shapeMap.TryGetValue(key, out float value) ? Math.Min(maxValue, value) : null;
     }
 
     public void TrySetToVrcftShape(UnifiedExpressionShape[] vrcftShape, UnifiedExpressions expression,
-        string meowKey, float maxValue = float.MaxValue)
+        string meowKey, float maxValue = 1f)
     {
         float? shape = GetShape(meowKey, maxValue);
 

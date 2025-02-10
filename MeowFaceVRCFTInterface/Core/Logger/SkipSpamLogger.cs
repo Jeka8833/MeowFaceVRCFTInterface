@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace MeowFaceVRCFTInterface.Logger;
+namespace MeowFaceVRCFTInterface.Core.Logger;
 
 public class SkipSpamLogger : ILogger
 {

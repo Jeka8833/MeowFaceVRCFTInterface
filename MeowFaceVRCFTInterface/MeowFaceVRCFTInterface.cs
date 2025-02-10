@@ -1,7 +1,8 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using MeowFaceVRCFTInterface.Config;
-using MeowFaceVRCFTInterface.Logger;
+using MeowFaceVRCFTInterface.Core;
+using MeowFaceVRCFTInterface.Core.Config;
+using MeowFaceVRCFTInterface.Core.Logger;
 using MeowFaceVRCFTInterface.MeowFace;
 using MeowFaceVRCFTInterface.VRCFT.Mappers;
 using Microsoft.Extensions.Logging;
@@ -25,8 +26,8 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
 
     public ILogger MeowLogger { get; private set; } = null!;
     public ILogger MeowSpamLogger { get; private set; } = null!;
+    public ConfigManager ConfigManager { get; private set; } = null!;
 
-    private ConfigManager _configManager = null!;
     private MeowUdpClient _udpClient = null!;
 
     private ModuleState _previousStatus = ModuleState.Uninitialized;
@@ -38,14 +39,14 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
         MeowLogger = new VrcftExceptionFixerLogger(Logger);
         MeowSpamLogger = new SkipSpamLogger(MeowLogger);
 
-        _configManager = new ConfigManager(ConfigPath, this, MeowLogger);
-        _configManager.LoadAndMigrateConfig();
+        ConfigManager = new ConfigManager(ConfigPath, this, MeowLogger);
+        ConfigManager.LoadAndMigrateConfig();
 
-        int udpConnectionTimeoutMillis = _configManager.Config.SearchMeowFaceTimeoutSeconds * 1_000;
+        int udpConnectionTimeoutMillis = ConfigManager.Config.SearchMeowFaceTimeoutSeconds * 1_000;
 
         try
         {
-            _udpClient = new MeowUdpClient(_configManager.Config.MeowFacePort, MeowSpamLogger)
+            _udpClient = new MeowUdpClient(ConfigManager.Config.MeowFacePort, MeowSpamLogger)
             {
                 ReceiveTimeoutMillis = udpConnectionTimeoutMillis
             };
@@ -65,7 +66,7 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
                                   "If you fail to do so in {} seconds, the module will be disabled " +
                                   "and you will have to restart the VRCFT application to try to connect again.",
             string.Join(", ", GetLocalIpAddresses()), _udpClient.SocketPort,
-            _configManager.Config.SearchMeowFaceTimeoutSeconds);
+            ConfigManager.Config.SearchMeowFaceTimeoutSeconds);
 
         if (!_udpClient.TryConnect(udpConnectionTimeoutMillis))
         {
@@ -74,7 +75,7 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
             ModuleInformation.Active = false;
 
             MeowLogger.LogInformation("The Android MeowFace app failed to connect to this computer in {} seconds. " +
-                                      "Disabling the module...", _configManager.Config.SearchMeowFaceTimeoutSeconds);
+                                      "Disabling the module...", ConfigManager.Config.SearchMeowFaceTimeoutSeconds);
 
             return (false, false);
         }
@@ -107,15 +108,15 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
             if (_previousStatus != Status)
             {
                 Thread.CurrentThread.IsBackground = true;
-                
+
                 if (Status == ModuleState.Active)
                 {
                     if (_previousStatus != ModuleState.Uninitialized)
                     {
-                        _configManager.LoadConfig();
+                        ConfigManager.LoadConfig();
                     }
 
-                    _udpClient.ReceiveTimeoutMillis = _configManager.Config.MeowFaceReadTimeoutMilliseconds;
+                    _udpClient.ReceiveTimeoutMillis = ConfigManager.Config.MeowFaceReadTimeoutMilliseconds;
                 }
 
                 _previousStatus = Status;
@@ -131,7 +132,7 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
             MeowFaceParam? meowFaceParam = _udpClient.TryRequest();
             if (!meowFaceParam.HasValue) return;
 
-            foreach (MapperCft mapper in _configManager.Mappers)
+            foreach (MapperBase mapper in ConfigManager.Mappers)
             {
                 if (!mapper.IsEnabled || mapper.IsMapperCrashed) continue;
 

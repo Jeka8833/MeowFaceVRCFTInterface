@@ -1,10 +1,11 @@
-﻿using MeowFaceVRCFTInterface.MeowFace;
+﻿using MeowFaceVRCFTInterface.Core;
+using MeowFaceVRCFTInterface.MeowFace;
 using VRCFaceTracking;
 using VRCFaceTracking.Core.Params.Expressions;
 
 namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
 
-public class JawMapper : MapperCft
+public class JawMapper : MapperBase
 {
     public override void UpdateExpression(MeowFaceParam meowFaceParam)
     {

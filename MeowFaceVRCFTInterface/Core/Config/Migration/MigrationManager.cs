@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace MeowFaceVRCFTInterface.Config.Migration;
+namespace MeowFaceVRCFTInterface.Core.Config.Migration;
 
 public class MigrationManager
 {

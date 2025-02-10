@@ -1,12 +1,13 @@
-﻿using MeowFaceVRCFTInterface.MeowFace;
+﻿using MeowFaceVRCFTInterface.Core;
+using MeowFaceVRCFTInterface.MeowFace;
 using Microsoft.Extensions.Logging;
 using VRCFaceTracking;
 
 namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
 
-public class HeadPositionAndRotationMapper : MapperCft
+public class HeadPositionAndRotationMapper : MapperBase
 {
-    private const float RadianConst = 0.01745329251994329576923690768488612713442871888541725456097191440171009114f;
+    private const float UnitConst = 1f / 180f;
 
     private MeowFaceVRCFTInterface _module = null!;
 
@@ -28,9 +29,9 @@ public class HeadPositionAndRotationMapper : MapperCft
 
         if (meowFaceParam.HeadRotation.HasValue)
         {
-            UnifiedTracking.Data.Head.HeadPitch = meowFaceParam.HeadRotation.Value.Y * RadianConst;
-            UnifiedTracking.Data.Head.HeadRoll = meowFaceParam.HeadRotation.Value.Z * RadianConst;
-            UnifiedTracking.Data.Head.HeadYaw = meowFaceParam.HeadRotation.Value.X * RadianConst;
+            UnifiedTracking.Data.Head.HeadPitch = meowFaceParam.HeadRotation.Value.Y * UnitConst * 2;
+            UnifiedTracking.Data.Head.HeadRoll = meowFaceParam.HeadRotation.Value.Z * UnitConst;
+            UnifiedTracking.Data.Head.HeadYaw = meowFaceParam.HeadRotation.Value.X * UnitConst * 2;
         }
 
         _module.MeowSpamLogger.LogInformation(

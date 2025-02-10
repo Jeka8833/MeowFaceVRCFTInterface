@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace MeowFaceVRCFTInterface.Config;
+namespace MeowFaceVRCFTInterface.Core.Config;
 
 public class UwpConfigPathFinder
 {

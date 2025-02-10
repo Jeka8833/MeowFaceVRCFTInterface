@@ -1,12 +1,10 @@
 ﻿using System.Text;
-using MeowFaceVRCFTInterface.Config.Migration;
-using MeowFaceVRCFTInterface.VRCFT.Mappers;
+using MeowFaceVRCFTInterface.Core.Config.Migration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace MeowFaceVRCFTInterface.Config;
+namespace MeowFaceVRCFTInterface.Core.Config;
 
-// Class looks like s***, need to simplify
 public class ConfigManager
 {
     private readonly MigrationManager _migrationManager;
@@ -18,7 +16,7 @@ public class ConfigManager
     private readonly object _saveLock = new();
 
     public MeowConfig Config { get; private set; } = null!;
-    public MapperCft[] Mappers { get; private set; } = null!;
+    public MapperBase[] Mappers { get; private set; } = null!;
 
     public ConfigManager(string configPath, MeowFaceVRCFTInterface module, ILogger logger)
     {
@@ -144,9 +142,9 @@ public class ConfigManager
 
     private void ChangeConfigAndDisableBrokenMappers(MeowConfig config)
     {
-        MapperCft[] newList = config.GetAllMappers();
+        MapperBase[] newList = config.GetAllMappers();
 
-        foreach (MapperCft mapper in newList)
+        foreach (MapperBase mapper in newList)
         {
             if (!mapper.IsEnabled) continue;
 
@@ -163,8 +161,24 @@ public class ConfigManager
             }
         }
 
+        MapperBase[] oldMappers = Mappers;
+
         Config = config;
         Mappers = newList;
+
+        if (oldMappers == null) return; // oldMappers can be null
+
+        foreach (MapperBase mapper in oldMappers)
+        {
+            try
+            {
+                mapper.Dispose();
+            }
+            catch (Exception)
+            {
+                _logger.LogWarning("Failed to dispose mapper: {}", mapper.GetType().Name);
+            }
+        }
     }
 
     private void TryCreateConfigFolder(string configPath)

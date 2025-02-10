@@ -1,12 +1,13 @@
-﻿using MeowFaceVRCFTInterface.MeowFace;
+﻿using MeowFaceVRCFTInterface.Core;
+using MeowFaceVRCFTInterface.MeowFace;
 using VRCFaceTracking;
 using VRCFaceTracking.Core.Params.Expressions;
 
 namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
 
-public class CheekMapper : MapperCft
+public class CheekMapper : MapperBase
 {
-    public bool CheekSquintFromMouthSmile { get; set; } = false;
+    public bool CheekSquintFromMouthSmile { get; init; } = false;
 
     public override void UpdateExpression(MeowFaceParam meowFaceParam)
     {

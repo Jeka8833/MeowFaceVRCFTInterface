@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace MeowFaceVRCFTInterface.Config.Migration;
+namespace MeowFaceVRCFTInterface.Core.Config.Migration;
 
 public static class ModuleVersion
 {

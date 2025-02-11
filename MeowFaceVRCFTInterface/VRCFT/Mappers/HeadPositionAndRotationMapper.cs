@@ -1,42 +1,60 @@
 ﻿using MeowFaceVRCFTInterface.Core;
+using MeowFaceVRCFTInterface.Core.Part.Head;
 using MeowFaceVRCFTInterface.MeowFace;
-using Microsoft.Extensions.Logging;
 using VRCFaceTracking;
 
 namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
 
 public class HeadPositionAndRotationMapper : MapperBase
 {
-    private const float UnitConst = 1f / 180f;
-
-    private MeowFaceVRCFTInterface _module = null!;
+    public MeowFaceHeadParams Source { get; init; } = new();
+    public HeadCenterCalibration CenterCalibration { get; init; } = new();
+    public HeadBoost Boost { get; init; } = new();
 
     public override void Initialize(MeowFaceVRCFTInterface module)
     {
-        _module = module;
+#pragma warning disable CS1717 // Crash and disable mapper if HeadPosX is absent
+        UnifiedTracking.Data.Head.HeadPosX = UnifiedTracking.Data.Head.HeadPosX;
+#pragma warning restore CS1717
 
-        UnifiedTracking.Data.Head.HeadPosX = UnifiedTracking.Data.Head.HeadPosX; // Disable module if VRCFT is old
+        CenterCalibration.Initialize(module);
     }
 
     public override void UpdateExpression(MeowFaceParam meowFaceParam)
     {
-        if (meowFaceParam.HeadPosition.HasValue)
+        HeadParams headParams = Source.ToHeadParams(meowFaceParam);
+        CenterCalibration.UseCalibrationOrCalibrate(headParams);
+        Boost.Update(headParams);
+        HeadClamp.Clamp(headParams);
+
+        if (headParams.HeadPosX.HasValue)
         {
-            UnifiedTracking.Data.Head.HeadPosX = meowFaceParam.HeadPosition.Value.X;
-            UnifiedTracking.Data.Head.HeadPosY = meowFaceParam.HeadPosition.Value.Y;
-            UnifiedTracking.Data.Head.HeadPosZ = meowFaceParam.HeadPosition.Value.Z;
+            UnifiedTracking.Data.Head.HeadPosX = headParams.HeadPosX.Value;
         }
 
-        if (meowFaceParam.HeadRotation.HasValue)
+        if (headParams.HeadPosY.HasValue)
         {
-            UnifiedTracking.Data.Head.HeadPitch = meowFaceParam.HeadRotation.Value.Y * UnitConst * 2;
-            UnifiedTracking.Data.Head.HeadRoll = meowFaceParam.HeadRotation.Value.Z * UnitConst;
-            UnifiedTracking.Data.Head.HeadYaw = meowFaceParam.HeadRotation.Value.X * UnitConst * 2;
+            UnifiedTracking.Data.Head.HeadPosY = headParams.HeadPosY.Value;
         }
 
-        _module.MeowSpamLogger.LogInformation(
-            "HeadPosX: {}, HeadPosY: {}, HeadPosZ: {}, HeadPitch: {}, HeadRoll: {}, HeadYaw: {}",
-            UnifiedTracking.Data.Head.HeadPosX, UnifiedTracking.Data.Head.HeadPosY, UnifiedTracking.Data.Head.HeadPosZ,
-            UnifiedTracking.Data.Head.HeadPitch, UnifiedTracking.Data.Head.HeadRoll, UnifiedTracking.Data.Head.HeadYaw);
+        if (headParams.HeadPosZ.HasValue)
+        {
+            UnifiedTracking.Data.Head.HeadPosZ = headParams.HeadPosZ.Value;
+        }
+
+        if (headParams.HeadPitch.HasValue)
+        {
+            UnifiedTracking.Data.Head.HeadPitch = headParams.HeadPitch.Value;
+        }
+
+        if (headParams.HeadYaw.HasValue)
+        {
+            UnifiedTracking.Data.Head.HeadYaw = headParams.HeadYaw.Value;
+        }
+    }
+
+    public override void Dispose()
+    {
+        CenterCalibration.Dispose();
     }
 }

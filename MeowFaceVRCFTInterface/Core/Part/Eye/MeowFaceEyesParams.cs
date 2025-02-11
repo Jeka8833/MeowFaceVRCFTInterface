@@ -4,8 +4,6 @@ namespace MeowFaceVRCFTInterface.Core.Part.Eye;
 
 public class MeowFaceEyesParams
 {
-    private const float UnitConst = 1f / 180f;
-
     public bool UseShapeForY { get; init; } = true;
     public bool HelpBlinkWithEyeSquint { get; init; } = true;
 
@@ -18,8 +16,8 @@ public class MeowFaceEyesParams
         eyesParams.RightOpenness = GetEyeOpenness(meowFaceParam, HelpBlinkWithEyeSquint, MeowFaceParam.EyeBlinkRight,
             MeowFaceParam.EyeSquintRight);
 
-        eyesParams.LeftGazeX = meowFaceParam.EyeLeft?.Y * UnitConst;
-        eyesParams.RightGazeX = meowFaceParam.EyeRight?.Y * UnitConst;
+        eyesParams.LeftGazeX = meowFaceParam.EyeLeft?.Y / 180f;
+        eyesParams.RightGazeX = meowFaceParam.EyeRight?.Y / 180f;
 
         if (UseShapeForY)
         {
@@ -30,8 +28,8 @@ public class MeowFaceEyesParams
         }
         else
         {
-            eyesParams.LeftGazeY = meowFaceParam.EyeLeft?.X * -UnitConst;
-            eyesParams.RightGazeY = meowFaceParam.EyeRight?.X * -UnitConst;
+            eyesParams.LeftGazeY = meowFaceParam.EyeLeft?.X / -180f;
+            eyesParams.RightGazeY = meowFaceParam.EyeRight?.X / -180f;
         }
 
         return eyesParams;

@@ -29,28 +29,13 @@ public class EyesCenterCalibration : IDisposable
     {
         _module = module;
 
-        if (!float.IsFinite(EyeShiftLeft.X) || !float.IsFinite(EyeShiftLeft.Y))
-        {
-            EyeShiftLeft = new Vector2();
-
-            _module.MeowLogger.LogWarning("Parameter EyeShiftLeft was reset");
-            _module.ConfigManager.SaveConfigAsync();
-        }
-
-        if (!float.IsFinite(EyeShiftRight.X) || !float.IsFinite(EyeShiftRight.Y))
-        {
-            EyeShiftRight = new Vector2();
-
-            _module.MeowLogger.LogWarning("Parameter EyeShiftRight was reset");
-            _module.ConfigManager.SaveConfigAsync();
-        }
-
         if (DoAutoCalibration)
         {
             double timeoutTime = (WaitBeforeStartAutoCalibrationSeconds + AutoCalibrationAverageSampleCount / 5d)
                 * 1000d + 15_000d;
 
-            _module.MeowLogger.LogInformation("Auto center calibration timeout set {}ms", Math.Ceiling(timeoutTime));
+            _module.MeowLogger.LogInformation("Eyes auto center calibration timeout set {}ms",
+                Math.Ceiling(timeoutTime));
 
             _deadlockTimer = new Timer(timeoutTime);
             _deadlockTimer.Elapsed += (_, _) =>
@@ -100,9 +85,12 @@ public class EyesCenterCalibration : IDisposable
             _eyeShiftRightYList.Add(eyesParams.RightGazeY.Value);
         }
 
-        int currentSamples = Math.Max(Math.Max(Math.Max(
-                _eyeShiftLeftXList.Count, _eyeShiftLeftYList.Count), _eyeShiftRightXList.Count),
-            _eyeShiftRightYList.Count);
+        int[] counts =
+        {
+            _eyeShiftLeftXList.Count, _eyeShiftLeftYList.Count, _eyeShiftRightXList.Count, _eyeShiftRightYList.Count
+        };
+
+        int currentSamples = counts.Max();
 
         if (currentSamples >= AutoCalibrationAverageSampleCount)
         {
@@ -127,6 +115,11 @@ public class EyesCenterCalibration : IDisposable
         }
     }
 
+    public void Dispose()
+    {
+        _deadlockTimer?.Dispose();
+    }
+
     private void StopCalibration()
     {
         DoAutoCalibration = false;
@@ -135,16 +128,12 @@ public class EyesCenterCalibration : IDisposable
             _deadlockTimer.Enabled = false;
         }
 
-        _eyeShiftLeftXList = new List<float>(0);
-        _eyeShiftLeftYList = new List<float>(0);
-        _eyeShiftRightXList = new List<float>(0);
-        _eyeShiftRightYList = new List<float>(0);
+        // Create new objects, allow GC to free list internal array
+        _eyeShiftLeftXList = new List<float>();
+        _eyeShiftLeftYList = new List<float>();
+        _eyeShiftRightXList = new List<float>();
+        _eyeShiftRightYList = new List<float>();
 
         _module.ConfigManager.SaveConfigAsync();
-    }
-
-    public void Dispose()
-    {
-        _deadlockTimer?.Dispose();
     }
 }

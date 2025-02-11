@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using MeowFaceVRCFTInterface.Core.Config.Converter;
 using MeowFaceVRCFTInterface.Core.Config.Migration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -14,6 +15,7 @@ public class ConfigManager
     private readonly ILogger _logger;
 
     private readonly object _saveLock = new();
+    private readonly JsonConverter[] _jsonConverters = { new OnlyFinityNumbersConverter() };
 
     public MeowConfig Config { get; private set; } = null!;
     public MapperBase[] Mappers { get; private set; } = null!;
@@ -67,7 +69,7 @@ public class ConfigManager
                 {
                     _migrationManager.UpdateConfigVersion(Config);
 
-                    string configJson = JsonConvert.SerializeObject(Config, Formatting.Indented);
+                    string configJson = JsonConvert.SerializeObject(Config, Formatting.Indented, _jsonConverters);
 
                     bool saved = false;
                     if (_uwpConfigPathFinder.UwpConfigPath != null)
@@ -110,7 +112,7 @@ public class ConfigManager
             if (File.Exists(_configPath))
             {
                 string jsonText = File.ReadAllText(_configPath, Encoding.UTF8);
-                MeowConfig? data = JsonConvert.DeserializeObject<MeowConfig>(jsonText);
+                MeowConfig? data = JsonConvert.DeserializeObject<MeowConfig>(jsonText, _jsonConverters);
                 if (data == null)
                 {
                     _logger.LogWarning("Failed to load configuration, data equals null.\n" +

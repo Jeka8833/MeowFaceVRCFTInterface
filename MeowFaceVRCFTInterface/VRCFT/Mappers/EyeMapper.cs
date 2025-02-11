@@ -12,17 +12,22 @@ public class EyeMapper : MapperBase
     public bool EnableEyeGazeY { get; init; } = true;
 
     public MeowFaceEyesParams Source { get; init; } = new();
-    public EyesCenterCalibration CalibrateCenter { get; init; } = new();
+    public EyesCenterCalibration CenterCalibration { get; init; } = new();
+    public EyesBoost Boost { get; init; } = new();
+    public EyesFocusRange FocusRange { get; init; } = new();
 
     public override void Initialize(MeowFaceVRCFTInterface module)
     {
-        CalibrateCenter.Initialize(module);
+        CenterCalibration.Initialize(module);
+        FocusRange.Initialize(module);
     }
 
     public override void UpdateEye(MeowFaceParam meowFaceParam)
     {
         EyesParams eyesParams = Source.ToEyesParams(meowFaceParam);
-        CalibrateCenter.UseCalibrationOrCalibrate(eyesParams);
+        CenterCalibration.UseCalibrationOrCalibrate(eyesParams);
+        Boost.Update(eyesParams);
+        FocusRange.Update(eyesParams);
 
         if (EnableEyeGazeX)
         {
@@ -76,6 +81,6 @@ public class EyeMapper : MapperBase
 
     public override void Dispose()
     {
-        CalibrateCenter.Dispose();
+        CenterCalibration.Dispose();
     }
 }

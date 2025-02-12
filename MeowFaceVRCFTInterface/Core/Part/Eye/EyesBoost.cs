@@ -2,11 +2,8 @@
 
 public class EyesBoost
 {
-    private const float BoostXDefault = 1.5f;
-    private const float BoostYDefault = 2f;
-
-    public float BoostX { get; set; } = BoostXDefault;
-    public float BoostY { get; set; } = BoostYDefault;
+    public float BoostX { get; init; } = 4f;
+    public float BoostY { get; init; } = 2f;
 
     public void Update(EyesParams eyesParams)
     {

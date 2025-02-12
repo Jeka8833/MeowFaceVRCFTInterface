@@ -2,13 +2,13 @@
 
 public class HeadBoost
 {
-    public float BoostX { get; set; } = 1f;
-    public float BoostY { get; set; } = 1f;
-    public float BoostZ { get; set; } = 1f;
+    public float BoostX { get; init; } = 1f;
+    public float BoostY { get; init; } = 1f;
+    public float BoostZ { get; init; } = 1f;
 
-    public float BoostPitch { get; set; } = 1f;
-    public float BoostRoll { get; set; } = 1f;
-    public float BoostYaw { get; set; } = 1f;
+    public float BoostPitch { get; init; } = 4f;
+    public float BoostRoll { get; init; } = 2f;
+    public float BoostYaw { get; init; } = 2f;
 
     public void Update(HeadParams headParams)
     {

@@ -11,7 +11,7 @@
 ///     The normalized values should be *approximately* represent a 1x1x1 meter movement region about the user's origin point 
 ///     (i.e. HeadPosX = 1 means the user is 0.5m to their right from their starting point, HeadPosX = -1 the user is 0.5m to their left)
 /// </summary>
-public struct HeadParams
+public class HeadParams
 {
     public float? HeadYaw;
     public float? HeadPitch;

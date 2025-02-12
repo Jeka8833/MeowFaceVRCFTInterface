@@ -1,6 +1,6 @@
 ﻿namespace MeowFaceVRCFTInterface.Core.Part.Eye;
 
-public struct EyesParams
+public class EyesParams
 {
     public float? LeftOpenness;
     public float? LeftGazeX;

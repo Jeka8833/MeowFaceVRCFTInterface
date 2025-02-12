@@ -32,11 +32,6 @@ public class HeadCenterCalibration : IDisposable
     private long? _moduleStartTime;
     private Timer? _deadlockTimer;
 
-    public HeadCenterCalibration()
-    {
-        HeadShiftYaw = 0f;
-    }
-
     public void Initialize(MeowFaceVRCFTInterface module)
     {
         _module = module;
@@ -75,7 +70,7 @@ public class HeadCenterCalibration : IDisposable
             headParams.HeadPitch -= HeadShiftPitch;
             headParams.HeadRoll -= HeadShiftRoll;
             headParams.HeadYaw -= HeadShiftYaw;
-
+            
             return;
         }
 

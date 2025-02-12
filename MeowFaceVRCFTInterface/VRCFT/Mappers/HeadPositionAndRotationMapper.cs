@@ -47,6 +47,11 @@ public class HeadPositionAndRotationMapper : MapperBase
             UnifiedTracking.Data.Head.HeadPitch = headParams.HeadPitch.Value;
         }
 
+        if (headParams.HeadRoll.HasValue)
+        {
+            UnifiedTracking.Data.Head.HeadRoll = headParams.HeadRoll.Value;
+        }
+
         if (headParams.HeadYaw.HasValue)
         {
             UnifiedTracking.Data.Head.HeadYaw = headParams.HeadYaw.Value;

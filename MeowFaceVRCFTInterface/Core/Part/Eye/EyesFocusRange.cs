@@ -4,7 +4,7 @@ namespace MeowFaceVRCFTInterface.Core.Part.Eye;
 
 public class EyesFocusRange
 {
-    public float FocusStaticShift { get; set; } = 0.001f;
+    public float FocusStaticShift { get; init; } = 0.05f;
 
     public void Initialize(MeowFaceVRCFTInterface module)
     {

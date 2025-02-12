@@ -1,0 +1,15 @@
+{
+  "ModuleId": "943d93e7-f5c5-42d3-9251-e65d1f59ef2a",
+  "LastUpdated": "2025-02-12T18:23:10Z",
+  "Version": "1.0.0.0",
+  "Downloads": -1,
+  "Ratings": -1,
+  "Rating": -1,
+  "AuthorName": "Jeka8833",
+  "ModuleName": "MeowFaceVRCFTInterface",
+  "ModuleDescription": "The module is a bridge between the MeowFace Android app and the VRCFaceTracking app.",
+  "UsageInstructions": "(No usage instructions provided. Check the module page for more information.)",
+  "DownloadUrl": "https://github.com/Jeka8833/MeowFaceVRCFTInterface/releases/latest",
+  "ModulePageUrl": "https://github.com/Jeka8833/MeowFaceVRCFTInterface",
+  "DllFileName": "MeowFaceVRCFTInterface.dll"
+}

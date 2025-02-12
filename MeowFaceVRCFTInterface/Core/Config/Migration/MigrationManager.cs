@@ -46,10 +46,10 @@ public class MigrationManager
     {
         if (_moduleVersion == null) return;
 
-        
-        
-        
-        config.ConfigVersion = _moduleVersion.ToString();
+        int build = _moduleVersion.Build == -1 ? 0 : _moduleVersion.Build;
+        int revision = _moduleVersion.Revision == -1 ? 0 : _moduleVersion.Revision;
+
+        config.ConfigVersion = new Version(_moduleVersion.Major, _moduleVersion.Minor, build, revision).ToString();
     }
 
     private void Migrate(MeowConfig config, Version configVersion)

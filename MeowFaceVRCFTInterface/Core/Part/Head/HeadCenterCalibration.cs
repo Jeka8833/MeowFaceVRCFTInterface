@@ -70,7 +70,7 @@ public class HeadCenterCalibration : IDisposable
             headParams.HeadPitch -= HeadShiftPitch;
             headParams.HeadRoll -= HeadShiftRoll;
             headParams.HeadYaw -= HeadShiftYaw;
-            
+
             return;
         }
 

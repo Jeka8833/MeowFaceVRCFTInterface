@@ -5,7 +5,7 @@ namespace MeowFaceVRCFTInterface.Core.Config;
 public class UwpConfigPathFinder
 {
     public string? UwpConfigPath { get; }
-    
+
     private readonly string _configPath;
     private readonly ILogger _logger;
 

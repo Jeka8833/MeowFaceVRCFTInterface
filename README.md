@@ -17,27 +17,28 @@ The MeowFaceVRCFTInterface is a good starting point as it doesn't require you to
 
 ## Installation
 
-- Instructions can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki/Installation)
+- Instructions can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki/Install-Module)
 
 ## Connecting MeowFace to VRCFT
 
 - Instructions can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki/Connecting-MeowFace-to-VRCFT)
 
-## Troubleshooting
-
-- Instructions can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki/Troubleshooting)
-
-## Configuring the module
+## Calibrating
 
 Camera position, facial structure and other parameters are different for everyone, so the module needs to be customized and calibrated.
 
-- Instructions can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki/Configuring-the-module)
+- Instructions on how to configure the module can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki/Configuring-the-module)
+- Instructions on how to calibrate an avatar face from the MeowFace app can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki/Calibrate-From-the-MeowFace-App)
+## Other Documentation
+
+- All instructions can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki)
 
 ## Build your module
 
 > Feel free to create your modules to achieve the tracking results you want; perhaps some of them will be merged with this project.
 
-I think you can figure it out yourself if you have already decided to modify the project. However, when you **clone** the repository using the **IDE**, the project will be **already configured and ready to build**. Simply cloning without --recurse-submodules or downloading a Zip archive from GitHub **won't work** because the  repository uses **submodules**!
+I think you can figure it out yourself if you have already decided to modify the project. However, when you **clone** the repository using the **IDE**, the project will be **already configured and ready to build**.
+Simply cloning (`git clone`) without `--recurse-submodules` or downloading a Zip archive from GitHub **won't work** because the repository uses **submodules**!
 
 Instructions on where to put the module and in general on developing modules for VRCFT can be found [here](https://docs.vrcft.io/docs/vrcft-software/vrcft-sdk/tracking-module).
 

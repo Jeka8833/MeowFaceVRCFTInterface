@@ -4,8 +4,8 @@ namespace MeowFaceVRCFTInterface.Core.Part.Eye;
 
 public class MeowFaceEyesParams
 {
-    public bool UseShapeForY { get; init; } = true;
-    public bool HelpBlinkWithEyeSquint { get; init; } = true;
+    public bool UseShapeForY { get; init; } = false;
+    public bool HelpBlinkWithEyeSquint { get; init; } = false;
 
     public EyesParams ToEyesParams(MeowFaceParam meowFaceParam)
     {

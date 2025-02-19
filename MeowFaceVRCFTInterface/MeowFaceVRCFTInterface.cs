@@ -68,16 +68,22 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
             string.Join(", ", GetLocalIpAddresses()), _udpClient.SocketPort,
             ConfigManager.Config.SearchMeowFaceTimeoutSeconds);
 
-        if (!_udpClient.TryConnect(udpConnectionTimeoutMillis))
+        using (MeowUdpAutoConnect auto = new(_udpClient.SocketPort, MeowLogger))
         {
-            Teardown();
+            auto.StartBroadcasting();
 
-            ModuleInformation.Active = false;
+            if (!_udpClient.TryConnect(udpConnectionTimeoutMillis))
+            {
+                Teardown();
 
-            MeowLogger.LogInformation("The Android MeowFace app failed to connect to this computer in {} seconds. " +
-                                      "Disabling the module...", ConfigManager.Config.SearchMeowFaceTimeoutSeconds);
+                ModuleInformation.Active = false;
 
-            return (false, false);
+                MeowLogger.LogInformation(
+                    "The Android MeowFace app failed to connect to this computer in {} seconds. " +
+                    "Disabling the module...", ConfigManager.Config.SearchMeowFaceTimeoutSeconds);
+
+                return (false, false);
+            }
         }
 
         ModuleInformation.Name = "Meow Face";

@@ -7,15 +7,15 @@ public record MeowFaceDto
     /**
      * Not used in this program
      *
-     * public int Hotkey { get; init; } // Maybe always -1?
+     * public int Hotkey { get; init; } // Always -1
      * public bool FaceFound { get; init; } // Always true
      * public MeowVector Position { get; init; } // Always 0 0 0
      */
 
     public long Timestamp { get; init; } = 0;
 
-    public MeowVector EyeLeft { get; init; } = MeowVector.EmptyValue; // z is always 0, but it contains
-    public MeowVector EyeRight { get; init; } = MeowVector.EmptyValue; // z is always 0, but it contains
+    public MeowVector EyeLeft { get; init; } = MeowVector.EmptyValue; // z is always 0
+    public MeowVector EyeRight { get; init; } = MeowVector.EmptyValue; // z is always 0
     public MeowVector Rotation { get; init; } = MeowVector.EmptyValue;
     public MeowVector VNyanPos { get; init; } = MeowVector.EmptyValue;
 

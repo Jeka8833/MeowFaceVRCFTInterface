@@ -11,6 +11,7 @@ public class MeowConfig
     public ushort MeowFacePort { get; set; } = 12345;
     public ushort SearchMeowFaceTimeoutSeconds { get; set; } = 60;
     public int MeowFaceReadTimeoutMilliseconds { get; set; } = 5_000;
+    public bool ShowAllLogs { get; set; } = false;
 
     public EyeMapper EyeMapper { get; set; } = new();
     public BrowMapper BrowMapper { get; set; } = new();

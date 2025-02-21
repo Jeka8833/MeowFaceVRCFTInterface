@@ -4,13 +4,14 @@ using MeowFaceVRCFTInterface.Core;
 using MeowFaceVRCFTInterface.Core.Config;
 using MeowFaceVRCFTInterface.Core.Logger;
 using MeowFaceVRCFTInterface.MeowFace;
-using MeowFaceVRCFTInterface.VRCFT.Mappers;
 using Microsoft.Extensions.Logging;
 using VRCFaceTracking;
 using VRCFaceTracking.Core.Library;
 
 namespace MeowFaceVRCFTInterface;
 
+// ReSharper disable once ClassNeverInstantiated.Global
+// ReSharper disable once InconsistentNaming
 public class MeowFaceVRCFTInterface : ExtTrackingModule
 {
     // C:\Users\[UserName]\AppData\Local\Packages\[96ba052f-0948-44d8-86c4-a0212e4ae047_4s4k90pjvq32p]\LocalCache\Roaming\VRCFaceTracking\Configs\MeowFace\MeowConfig.json
@@ -37,19 +38,15 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
     public override (bool eyeSuccess, bool expressionSuccess) Initialize(bool eyeAvailable, bool expressionAvailable)
     {
         MeowLogger = new VrcftExceptionFixerLogger(Logger);
-        MeowSpamLogger = new SkipSpamLogger(MeowLogger);
 
         ConfigManager = new ConfigManager(ConfigPath, this, MeowLogger);
         ConfigManager.LoadAndMigrateConfig();
 
-        int udpConnectionTimeoutMillis = ConfigManager.Config.SearchMeowFaceTimeoutSeconds * 1_000;
+        MeowSpamLogger = ConfigManager.Config.ShowAllLogs ? MeowLogger : new SkipSpamLogger(MeowLogger);
 
         try
         {
-            _udpClient = new MeowUdpClient(ConfigManager.Config.MeowFacePort, MeowSpamLogger)
-            {
-                ReceiveTimeoutMillis = udpConnectionTimeoutMillis
-            };
+            _udpClient = new MeowUdpClient(ConfigManager.Config.MeowFacePort, MeowSpamLogger);
         }
         catch (Exception e)
         {
@@ -68,22 +65,17 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
             string.Join(", ", GetLocalIpAddresses()), _udpClient.SocketPort,
             ConfigManager.Config.SearchMeowFaceTimeoutSeconds);
 
-        using (MeowUdpAutoConnect auto = new(_udpClient.SocketPort, MeowLogger))
+        if (!_udpClient.TryConnect(ConfigManager.Config.SearchMeowFaceTimeoutSeconds))
         {
-            auto.StartBroadcasting();
+            Teardown();
 
-            if (!_udpClient.TryConnect(udpConnectionTimeoutMillis))
-            {
-                Teardown();
+            ModuleInformation.Active = false;
 
-                ModuleInformation.Active = false;
+            MeowLogger.LogInformation(
+                "The Android MeowFace app failed to connect to this computer in {} seconds. " +
+                "Disabling the module...", ConfigManager.Config.SearchMeowFaceTimeoutSeconds);
 
-                MeowLogger.LogInformation(
-                    "The Android MeowFace app failed to connect to this computer in {} seconds. " +
-                    "Disabling the module...", ConfigManager.Config.SearchMeowFaceTimeoutSeconds);
-
-                return (false, false);
-            }
+            return (false, false);
         }
 
         ModuleInformation.Name = "Meow Face";
@@ -164,9 +156,8 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
 
     public override void Teardown()
     {
-        if (_udpClient == null) return; // _udpClient can be null, IDE too smart
-
-        _udpClient.Dispose();
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        _udpClient?.Dispose();
 
         MeowLogger.LogInformation("UPD Socket Closed");
     }

@@ -9,7 +9,6 @@ public class BrowMapper : MapperBase
 {
     public override void UpdateExpression(MeowFaceParam meowFaceParam)
     {
-        // Also MeowFaceParam.BrowInnerUp, maybe it can be used for getting more stable values
         meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.BrowInnerUpRight,
             MeowFaceParam.BrowInnerUpRight);
         meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.BrowInnerUpLeft,

@@ -8,7 +8,7 @@ public readonly struct MeowFaceParam
 {
     public const string BrowDownLeft = "browDownLeft";
     public const string BrowDownRight = "browDownRight";
-    public const string BrowInnerUp = "browInnerUp";
+    // public const string BrowInnerUp = "browInnerUp";    // It's just (BrowInnerUpLeft + BrowInnerUpRight) / 2 in MeowFace code
     public const string BrowInnerUpLeft = "browInnerUpLeft";
     public const string BrowInnerUpRight = "browInnerUpRight";
     public const string BrowOuterUpLeft = "browOuterUpLeft";
@@ -63,58 +63,46 @@ public readonly struct MeowFaceParam
 
     public const string TongueOut = "tongueOut";
 
-    public Vector2? EyeLeft { get; }
-    public Vector2? EyeRight { get; }
     public Vector3? HeadPosition { get; }
-    public Vector3? HeadRotation { get; }
 
     private readonly Dictionary<string, float> _shapeMap;
 
     public MeowFaceParam(MeowFaceDto meowDto)
     {
-        if (meowDto.EyeLeft.IsValid())
-        {
-            EyeLeft = new Vector2(meowDto.EyeLeft.X, meowDto.EyeLeft.Y);
-        }
-
-        if (meowDto.EyeRight.IsValid())
-        {
-            EyeRight = new Vector2(meowDto.EyeRight.X, meowDto.EyeRight.Y);
-        }
-
         if (meowDto.VNyanPos.IsValid())
         {
             HeadPosition = new Vector3(meowDto.VNyanPos.X, meowDto.VNyanPos.Y, meowDto.VNyanPos.Z);
         }
 
-        if (meowDto.Rotation.IsValid())
-        {
-            HeadRotation = new Vector3(meowDto.Rotation.X, meowDto.Rotation.Y, meowDto.Rotation.Z);
-        }
-
         _shapeMap = ToShapeMap(meowDto.BlendShapes);
     }
 
-    public float? GetShape(string key, float maxValue = 1f)
+    public float? GetShape(string key)
     {
-        return _shapeMap.TryGetValue(key, out float value) ? Math.Min(maxValue, value) : null;
+        return _shapeMap.TryGetValue(key, out float value) ? Math.Min(1f, value) : null;
     }
 
-    public void TrySetToVrcftShape(UnifiedExpressionShape[] vrcftShape, UnifiedExpressions expression,
-        string meowKey, float maxValue = 1f)
+    public float? SubtractShapes(string shapeKey1, string shapeKey2)
     {
-        float? shape = GetShape(meowKey, maxValue);
+        float? first = GetShape(shapeKey1);
+        float? second = GetShape(shapeKey2);
+
+        if (first.HasValue || second.HasValue)
+        {
+            return first.GetValueOrDefault(0f) - second.GetValueOrDefault(0f);
+        }
+
+        return null;
+    }
+
+    public void TrySetToVrcftShape(UnifiedExpressionShape[] vrcftShape, UnifiedExpressions expression, string meowKey)
+    {
+        float? shape = GetShape(meowKey);
 
         if (shape.HasValue)
         {
             vrcftShape[(int)expression].Weight = shape.Value;
         }
-    }
-
-    public override string ToString()
-    {
-        return "{EyeLeft: " + EyeLeft + ", EyeRight: " + EyeRight + ", HeadPosition: " + HeadPosition +
-               ", HeadRotation: " + HeadRotation + ", _shapeMap: " + string.Join(", ", _shapeMap) + "}";
     }
 
     private static Dictionary<string, float> ToShapeMap(MeowShape[] meowShapes)

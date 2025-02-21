@@ -12,7 +12,7 @@ public class MeowUdpClient : IDisposable
 
     private readonly UdpClient _udpClient;
     private readonly ILogger _logger;
-
+    private readonly MeowUdpAutoConnect? _meowUdpAutoConnect;
     public ushort SocketPort { get; private set; }
     private long _lastTimestamp;
 
@@ -34,19 +34,30 @@ public class MeowUdpClient : IDisposable
 
         _udpClient = TryCreateUdpSocket();
 
-        ReceiveTimeoutMillis = 10_000;
+        try
+        {
+            _meowUdpAutoConnect = new MeowUdpAutoConnect(SocketPort, logger);
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to create UDP Socket for auto connect");
+        }
     }
 
-    public bool TryConnect(long connectTimeoutMillis)
+    public bool TryConnect(ushort connectTimeoutSeconds)
     {
+        _meowUdpAutoConnect?.TryStartBroadcasting();
+
+        ReceiveTimeoutMillis = connectTimeoutSeconds * 1000;
+
         long startTime = Stopwatch.GetTimestamp();
 
-        while (Stopwatch.GetElapsedTime(startTime).TotalMilliseconds < connectTimeoutMillis)
+        do
         {
             MeowFaceParam? data = TryRequest();
 
             if (data != null) return true;
-        }
+        } while (Stopwatch.GetElapsedTime(startTime).TotalSeconds < connectTimeoutSeconds);
 
         return false;
     }
@@ -82,6 +93,8 @@ public class MeowUdpClient : IDisposable
                 _logger.LogDebug(e, "Additional StackTrace");
 
                 Thread.Sleep(1);
+
+                _meowUdpAutoConnect?.TryStartBroadcasting();
             }
             catch (Exception e)
             {
@@ -91,11 +104,24 @@ public class MeowUdpClient : IDisposable
             }
         } while (_udpClient.Available > 0); // Has new data, reduce latency
 
-        return lastPacket == null ? null : new MeowFaceParam(lastPacket);
+        if (lastPacket == null) return null;
+
+        _meowUdpAutoConnect?.TryStopBroadcasting();
+
+        return new MeowFaceParam(lastPacket);
     }
 
     public void Dispose()
     {
+        try
+        {
+            _meowUdpAutoConnect?.Dispose();
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+
         try
         {
             _udpClient.Close();

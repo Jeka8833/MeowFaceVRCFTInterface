@@ -6,7 +6,7 @@ The module is a bridge between the [MeowFace](https://suvidriel.itch.io/meowface
 
 With this module, you can use your real face to control your avatar's face in VRChat.
 
-The MeowFaceVRCFTInterface is a good starting point as it doesn't require you to invest any money if you have an Android phone (Or its emulation) and a Windows computer.
+The MeowFaceVRCFTInterface is a good starting point as it doesn't require you to invest any money if you have an Android phone or an Android phone emulator.
 
 ## Step 0
 

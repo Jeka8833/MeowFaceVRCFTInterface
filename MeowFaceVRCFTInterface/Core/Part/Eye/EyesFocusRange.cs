@@ -10,7 +10,7 @@ public class EyesFocusRange
     {
         if (FocusStaticShift < 0f)
         {
-            module.MeowLogger.LogInformation("You've added a squint to your character? FocusStaticShift: {}",
+            module.MeowLogger.LogInformation("Did you intentionally add the strabismus? FocusStaticShift: {}",
                 FocusStaticShift);
         }
     }

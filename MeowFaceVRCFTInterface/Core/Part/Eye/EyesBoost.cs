@@ -2,8 +2,8 @@
 
 public class EyesBoost
 {
-    public float BoostX { get; init; } = 4f;
-    public float BoostY { get; init; } = 2f;
+    public float BoostX { get; init; } = 1f;
+    public float BoostY { get; init; } = 1f;
 
     public void Update(EyesParams eyesParams)
     {

@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Timer = System.Timers.Timer;
 
 namespace MeowFaceVRCFTInterface.MeowFace;
 
@@ -8,90 +9,55 @@ public class MeowUdpAutoConnect : IDisposable
 {
     private const ushort BroadcastPort = 21412;
 
-    private readonly byte[] _packet;
-    private readonly ILogger _logger;
-    private readonly UdpClient? _udpClient;
+    private readonly UdpClient _udpClient;
+    private readonly Timer _timer = new();
 
-    private Thread? _thread;
-
+    /// <exception cref="Exception" />
     public MeowUdpAutoConnect(ushort port, ILogger logger)
     {
-        _packet = Encoding.ASCII.GetBytes("{\"port\":" + port + "}");
-        _logger = logger;
+        _udpClient = new UdpClient();
 
-        try
+        byte[] packet = Encoding.UTF8.GetBytes("{\"port\":" + port + "}");
+
+        _timer.Elapsed += (_, _) =>
         {
-            _udpClient = new UdpClient();
-        }
-        catch (Exception e)
-        {
-            logger.LogWarning(e, "Failed to create UDP Socket");
-        }
+            try
+            {
+                _udpClient.Send(packet, packet.Length, "255.255.255.255", BroadcastPort);
+            }
+            catch (Exception e)
+            {
+                logger.LogDebug(e, "Failed to send UDP Packet");
+            }
+        };
+
+        _timer.AutoReset = true;
+        _timer.Interval = 1000;
     }
 
-    public void StartBroadcasting()
+    public void TryStartBroadcasting()
     {
-        if (_udpClient == null || _thread != null) return;
+        _timer.Enabled = true;
+    }
 
-        _thread = new Thread(() =>
-        {
-            while (true)
-            {
-                try
-                {
-                    _udpClient.Send(_packet, _packet.Length, "255.255.255.255", BroadcastPort);
-
-                    Thread.Sleep(500);
-                }
-                catch (ThreadInterruptedException)
-                {
-                    return;
-                }
-                catch (Exception e)
-                {
-                    _logger.LogWarning(e, "Failed to send UDP Packet");
-
-                    try
-                    {
-                        Thread.Sleep(10_000);
-                    }
-                    catch (Exception)
-                    {
-                        return;
-                    }
-                }
-            }
-        });
-
-        _thread.IsBackground = true;
-        _thread.Priority = ThreadPriority.Lowest;
-        _thread.Start();
+    public void TryStopBroadcasting()
+    {
+        _timer.Enabled = false;
     }
 
     public void Dispose()
     {
-        if (_thread != null)
-        {
-            try
-            {
-                _thread.Interrupt();
-                _thread.Join();
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, "Failed to Close Thread");
-            }
-        }
+        _timer.Dispose();
 
         try
         {
-            _udpClient?.Close();
+            _udpClient.Close();
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            _logger.LogWarning(e, "Failed to Close UDP");
+            // ignored
         }
 
-        _udpClient?.Dispose();
+        _udpClient.Dispose();
     }
 }

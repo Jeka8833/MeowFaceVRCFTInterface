@@ -18,38 +18,44 @@ public class MeowFaceHeadParams
 
         if (meowFaceParam.HeadPosition.HasValue)
         {
+            // FusedMultiplyAdd more predictable, if MeowFace make something crazy
+
             if (EnablePositionX)
             {
-                headParams.HeadPosX = (meowFaceParam.HeadPosition.Value.X - 0.5f) * 2f;
+                headParams.HeadPosX = float.FusedMultiplyAdd(
+                    meowFaceParam.HeadPosition.Value.X, 2f, -1f);
             }
 
             if (EnablePositionY)
             {
-                headParams.HeadPosY = (meowFaceParam.HeadPosition.Value.Y - 0.5f) * 2f;
+                headParams.HeadPosY = float.FusedMultiplyAdd(
+                    meowFaceParam.HeadPosition.Value.Y, 2f, -1f);
             }
 
             if (EnablePositionZ)
             {
-                headParams.HeadPosZ = (meowFaceParam.HeadPosition.Value.Z - 0.5f) * 2f;
+                headParams.HeadPosZ = float.FusedMultiplyAdd(
+                    meowFaceParam.HeadPosition.Value.Z, 2f, -1f);
             }
         }
 
-        if (meowFaceParam.HeadRotation.HasValue)
+        // euler_rotation_ranges: [45, 88, 40]  -> Max Value: [0.5, 0.98, 0.45]???
+        // headParams.HeadPitch -> meowFaceParam.Y
+        // headParams.HeadRoll -> meowFaceParam.Z
+        // headParams.HeadYaw -> meowFaceParam.X
+        if (EnableRotationPitch)
         {
-            if (EnableRotationPitch)
-            {
-                headParams.HeadPitch = meowFaceParam.HeadRotation.Value.Y / 180f;
-            }
+            headParams.HeadPitch = meowFaceParam.SubtractShapes(MeowFaceParam.HeadDown, MeowFaceParam.HeadUp);
+        }
 
-            if (EnableRotationRoll)
-            {
-                headParams.HeadRoll = meowFaceParam.HeadRotation.Value.Z / 180f;
-            }
+        if (EnableRotationRoll)
+        {
+            headParams.HeadRoll = meowFaceParam.SubtractShapes(MeowFaceParam.HeadRollRight, MeowFaceParam.HeadRollLeft);
+        }
 
-            if (EnableRotationYaw)
-            {
-                headParams.HeadYaw = meowFaceParam.HeadRotation.Value.X / 180f;
-            }
+        if (EnableRotationYaw)
+        {
+            headParams.HeadYaw = meowFaceParam.SubtractShapes(MeowFaceParam.HeadLeft, MeowFaceParam.HeadRight);
         }
 
         return headParams;

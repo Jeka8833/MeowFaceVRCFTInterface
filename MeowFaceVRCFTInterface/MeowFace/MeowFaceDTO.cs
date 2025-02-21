@@ -10,13 +10,18 @@ public record MeowFaceDto
      * public int Hotkey { get; init; } // Always -1
      * public bool FaceFound { get; init; } // Always true
      * public MeowVector Position { get; init; } // Always 0 0 0
+     *
+     * // EyeLeft and EyeRight have very strange calculations in MeowFace that cause strabismus, please use BlendShapes
+     * public MeowVector EyeLeft { get; init; } = MeowVector.EmptyValue; // z is always 0
+     * public MeowVector EyeRight { get; init; } = MeowVector.EmptyValue; // z is always 0
+     *
+     * // Replaced with a counterpart that allows the user to customize head rotation using the MeowFace app interface.
+     * // Not every person is going to study the module configuration file.
+     * public MeowVector Rotation { get; init; } = MeowVector.EmptyValue;
      */
 
     public long Timestamp { get; init; } = 0;
 
-    public MeowVector EyeLeft { get; init; } = MeowVector.EmptyValue; // z is always 0
-    public MeowVector EyeRight { get; init; } = MeowVector.EmptyValue; // z is always 0
-    public MeowVector Rotation { get; init; } = MeowVector.EmptyValue;
     public MeowVector VNyanPos { get; init; } = MeowVector.EmptyValue;
 
     public MeowShape[] BlendShapes { get; init; } = Array.Empty<MeowShape>();
@@ -35,7 +40,7 @@ public readonly record struct MeowVector(
 
 public readonly record struct MeowShape(
     [JsonProperty(PropertyName = "k")] string K,
-    [JsonProperty(PropertyName = "v")] float V
+    [JsonProperty(PropertyName = "v")] float V = float.NaN
 )
 {
     public bool IsValid() => K != null && float.IsFinite(V) && V >= 0;

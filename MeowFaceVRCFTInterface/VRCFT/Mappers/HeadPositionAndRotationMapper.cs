@@ -1,5 +1,6 @@
 ﻿using MeowFaceVRCFTInterface.Core;
 using MeowFaceVRCFTInterface.Core.Part.Head;
+using MeowFaceVRCFTInterface.Core.Part.Head.CenterCalibration;
 using MeowFaceVRCFTInterface.MeowFace;
 using VRCFaceTracking;
 
@@ -27,34 +28,34 @@ public class HeadPositionAndRotationMapper : MapperBase
         Boost.Update(headParams);
         HeadClamp.Clamp(headParams);
 
-        if (headParams.HeadPosX.HasValue)
+        if (headParams.PosX.HasValue)
         {
-            UnifiedTracking.Data.Head.HeadPosX = headParams.HeadPosX.Value;
+            UnifiedTracking.Data.Head.HeadPosX = headParams.PosX.Value;
         }
 
-        if (headParams.HeadPosY.HasValue)
+        if (headParams.PosY.HasValue)
         {
-            UnifiedTracking.Data.Head.HeadPosY = headParams.HeadPosY.Value;
+            UnifiedTracking.Data.Head.HeadPosY = headParams.PosY.Value;
         }
 
-        if (headParams.HeadPosZ.HasValue)
+        if (headParams.PosZ.HasValue)
         {
-            UnifiedTracking.Data.Head.HeadPosZ = headParams.HeadPosZ.Value;
+            UnifiedTracking.Data.Head.HeadPosZ = headParams.PosZ.Value;
         }
 
-        if (headParams.HeadPitch.HasValue)
+        if (headParams.Pitch.HasValue)
         {
-            UnifiedTracking.Data.Head.HeadPitch = headParams.HeadPitch.Value;
+            UnifiedTracking.Data.Head.HeadPitch = headParams.Pitch.Value;
         }
 
-        if (headParams.HeadRoll.HasValue)
+        if (headParams.Roll.HasValue)
         {
-            UnifiedTracking.Data.Head.HeadRoll = headParams.HeadRoll.Value;
+            UnifiedTracking.Data.Head.HeadRoll = headParams.Roll.Value;
         }
 
-        if (headParams.HeadYaw.HasValue)
+        if (headParams.Yaw.HasValue)
         {
-            UnifiedTracking.Data.Head.HeadYaw = headParams.HeadYaw.Value;
+            UnifiedTracking.Data.Head.HeadYaw = headParams.Yaw.Value;
         }
     }
 

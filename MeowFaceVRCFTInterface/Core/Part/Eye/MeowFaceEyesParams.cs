@@ -36,6 +36,6 @@ public class MeowFaceEyesParams
             }
         }
 
-        return 1f - Math.Min(1f, eyeBlink.Value);
+        return 1f - eyeBlink;
     }
 }

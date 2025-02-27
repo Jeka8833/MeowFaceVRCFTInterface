@@ -12,12 +12,12 @@ public class HeadBoost
 
     public void Update(HeadParams headParams)
     {
-        headParams.HeadPosX *= BoostX;
-        headParams.HeadPosY *= BoostY;
-        headParams.HeadPosZ *= BoostZ;
+        headParams.PosX *= BoostX;
+        headParams.PosY *= BoostY;
+        headParams.PosZ *= BoostZ;
 
-        headParams.HeadPitch *= BoostPitch;
-        headParams.HeadRoll *= BoostRoll;
-        headParams.HeadYaw *= BoostYaw;
+        headParams.Pitch *= BoostPitch;
+        headParams.Roll *= BoostRoll;
+        headParams.Yaw *= BoostYaw;
     }
 }

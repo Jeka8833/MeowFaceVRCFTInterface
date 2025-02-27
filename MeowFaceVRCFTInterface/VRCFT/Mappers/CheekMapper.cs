@@ -7,7 +7,7 @@ namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
 
 public class CheekMapper : MapperBase
 {
-    public bool CheekSquintFromMouthSmile { get; init; } = false;
+    public bool CheekSquintFromMouthSmile { get; init; } = true;
 
     public override void UpdateExpression(MeowFaceParam meowFaceParam)
     {
@@ -17,7 +17,7 @@ public class CheekMapper : MapperBase
         meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.CheekPuffLeft,
             MeowFaceParam.CheekPuff);
 
-        // Simulated shapes
+        // Simulated shapes, from https://github.com/regzo2/VRCFaceTracking-MeowFace/blob/master/MeowFaceExtTrackingInterface/MeowFaceExtTrackingInterface.cs
         if (CheekSquintFromMouthSmile)
         {
             meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.CheekSquintRight,

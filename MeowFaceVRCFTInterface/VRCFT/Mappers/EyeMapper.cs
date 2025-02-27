@@ -1,5 +1,6 @@
 ﻿using MeowFaceVRCFTInterface.Core;
 using MeowFaceVRCFTInterface.Core.Part.Eye;
+using MeowFaceVRCFTInterface.Core.Part.Eye.CenterCalibration;
 using MeowFaceVRCFTInterface.MeowFace;
 using VRCFaceTracking;
 using VRCFaceTracking.Core.Params.Expressions;
@@ -8,9 +9,6 @@ namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
 
 public class EyeMapper : MapperBase
 {
-    public bool EnableEyeGazeX { get; init; } = true;
-    public bool EnableEyeGazeY { get; init; } = true;
-
     public MeowFaceEyesParams Source { get; init; } = new();
     public EyesCenterCalibration CenterCalibration { get; init; } = new();
     public EyesBoost Boost { get; init; } = new();
@@ -28,31 +26,26 @@ public class EyeMapper : MapperBase
         CenterCalibration.UseCalibrationOrCalibrate(eyesParams);
         Boost.Update(eyesParams);
         FocusRange.Update(eyesParams);
+        EyesClamp.Clamp(eyesParams);
 
-        if (EnableEyeGazeX)
+        if (eyesParams.LeftGazeX.HasValue)
         {
-            if (eyesParams.LeftGazeX.HasValue)
-            {
-                UnifiedTracking.Data.Eye.Left.Gaze.x = eyesParams.LeftGazeX.Value;
-            }
-
-            if (eyesParams.RightGazeX.HasValue)
-            {
-                UnifiedTracking.Data.Eye.Right.Gaze.x = eyesParams.RightGazeX.Value;
-            }
+            UnifiedTracking.Data.Eye.Left.Gaze.x = eyesParams.LeftGazeX.Value;
         }
 
-        if (EnableEyeGazeY)
+        if (eyesParams.RightGazeX.HasValue)
         {
-            if (eyesParams.LeftGazeY.HasValue)
-            {
-                UnifiedTracking.Data.Eye.Left.Gaze.y = eyesParams.LeftGazeY.Value;
-            }
+            UnifiedTracking.Data.Eye.Right.Gaze.x = eyesParams.RightGazeX.Value;
+        }
 
-            if (eyesParams.RightGazeY.HasValue)
-            {
-                UnifiedTracking.Data.Eye.Right.Gaze.y = eyesParams.RightGazeY.Value;
-            }
+        if (eyesParams.LeftGazeY.HasValue)
+        {
+            UnifiedTracking.Data.Eye.Left.Gaze.y = eyesParams.LeftGazeY.Value;
+        }
+
+        if (eyesParams.RightGazeY.HasValue)
+        {
+            UnifiedTracking.Data.Eye.Right.Gaze.y = eyesParams.RightGazeY.Value;
         }
 
         if (eyesParams.LeftOpenness.HasValue)

@@ -13,11 +13,11 @@
 /// </summary>
 public class HeadParams
 {
-    public float? HeadYaw;
-    public float? HeadPitch;
-    public float? HeadRoll;
+    public float? PosX;
+    public float? PosY;
+    public float? PosZ;
 
-    public float? HeadPosX;
-    public float? HeadPosY;
-    public float? HeadPosZ;
+    public float? Pitch;
+    public float? Roll;
+    public float? Yaw;
 }

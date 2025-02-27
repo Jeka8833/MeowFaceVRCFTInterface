@@ -114,7 +114,15 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
                         ConfigManager.LoadConfig();
                     }
 
-                    _udpClient.ReceiveTimeoutMillis = ConfigManager.Config.MeowFaceReadTimeoutMilliseconds;
+                    try
+                    {
+                        _udpClient.ReceiveTimeoutMillis =
+                            Convert.ToInt32(ConfigManager.Config.MeowFaceReadTimeoutMilliseconds);
+                    }
+                    catch (Exception e)
+                    {
+                        MeowLogger.LogWarning(e, "MeowFaceReadTimeoutMilliseconds is too big");
+                    }
                 }
 
                 _previousStatus = Status;

@@ -14,8 +14,10 @@ public class ConfigManager
     private readonly MeowFaceVRCFTInterface _module;
     private readonly ILogger _logger;
 
-    private readonly object _saveLock = new();
+    private readonly object _fileAccessLock = new();
     private readonly JsonConverter[] _jsonConverters = { new OnlyFinityNumbersConverter() };
+
+    private int _lastWriteHash;
 
     public MeowConfig Config { get; private set; } = null!;
     public MapperBase[] Mappers { get; private set; } = null!;
@@ -60,44 +62,36 @@ public class ConfigManager
 
     public void SaveConfigAsync()
     {
+        // May hang operating system if someone spam SaveConfigAsync
         Thread thread = new(() => // Parent thread can be Background, don't kill this thread when app is closing
         {
-            // Ideally, you should have forbidden saving if the operation happens too often. But I'm too lazy to do it.
-            if (Monitor.TryEnter(_saveLock)) // User is too fast want to save config, ignore it
+            try
             {
-                try
+                _migrationManager.UpdateConfigVersion(Config);
+                string configJson = JsonConvert.SerializeObject(Config, Formatting.Indented, _jsonConverters);
+
+                bool saved = false;
+                if (_uwpConfigPathFinder.UwpConfigPath != null)
                 {
-                    _migrationManager.UpdateConfigVersion(Config);
-
-                    string configJson = JsonConvert.SerializeObject(Config, Formatting.Indented, _jsonConverters);
-
-                    bool saved = false;
-                    if (_uwpConfigPathFinder.UwpConfigPath != null)
+                    try
                     {
-                        try
-                        {
-                            WriteConfig(configJson, _uwpConfigPathFinder.UwpConfigPath);
-                            saved = true;
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.LogDebug(e, "First try to write config has failed");
-                        }
+                        WriteConfig(configJson, _uwpConfigPathFinder.UwpConfigPath);
+                        saved = true;
                     }
-
-                    if (!saved)
+                    catch (Exception e)
                     {
-                        WriteConfig(configJson, _configPath);
+                        _logger.LogDebug(e, "First try to write config has failed");
                     }
                 }
-                catch (Exception e)
+
+                if (!saved)
                 {
-                    _logger.LogWarning(e, "Failed to save config");
+                    WriteConfig(configJson, _configPath);
                 }
-                finally
-                {
-                    Monitor.Exit(_saveLock);
-                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Failed to save config");
             }
         });
 
@@ -111,7 +105,14 @@ public class ConfigManager
         {
             if (File.Exists(_configPath))
             {
-                string jsonText = File.ReadAllText(_configPath, Encoding.UTF8);
+                string jsonText;
+                lock (_fileAccessLock)
+                {
+                    jsonText = File.ReadAllText(_configPath, Encoding.UTF8);
+
+                    _lastWriteHash = jsonText.GetHashCode();
+                }
+
                 MeowConfig? data = JsonConvert.DeserializeObject<MeowConfig>(jsonText, _jsonConverters);
                 if (data == null)
                 {
@@ -134,12 +135,21 @@ public class ConfigManager
     /// <exception cref="Exception"></exception>
     private void WriteConfig(string configJson, string configPath)
     {
+        _uwpConfigPathFinder.PrintConfigLocationOnce();
+
         TryCreateConfigFolder(configPath);
-        File.WriteAllText(configPath, configJson, Encoding.UTF8);
+
+        lock (_fileAccessLock)
+        {
+            int stringHashCode = configJson.GetHashCode();
+            if (stringHashCode == _lastWriteHash) return; // Can be collision
+
+            File.WriteAllText(configPath, configJson, Encoding.UTF8);
+
+            _lastWriteHash = stringHashCode;
+        }
 
         _logger.LogDebug("Config saved");
-
-        _uwpConfigPathFinder.PrintConfigLocationOnce();
     }
 
     private void ChangeConfigAndDisableBrokenMappers(MeowConfig config)
@@ -168,7 +178,8 @@ public class ConfigManager
         Config = config;
         Mappers = newList;
 
-        if (oldMappers == null) return; // oldMappers can be null
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (oldMappers == null) return;
 
         foreach (MapperBase mapper in oldMappers)
         {

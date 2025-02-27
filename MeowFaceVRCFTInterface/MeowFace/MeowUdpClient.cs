@@ -24,7 +24,7 @@ public class MeowUdpClient : IDisposable
 
     /// <summary>
     /// The port you passed may be different from the one on which the socket will be opened.
-    /// You can get an active port via MeowUdpClient.Port
+    /// You can get an active port via MeowUdpClient.SocketPort
     /// </summary>
     /// <exception cref="Exception">If UDP Socket can't be opened</exception>
     public MeowUdpClient(ushort port, ILogger logger)

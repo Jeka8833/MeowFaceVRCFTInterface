@@ -7,6 +7,10 @@ namespace MeowFaceVRCFTInterface.VRCFT.Mappers;
 
 public class LipAndMouthMapper : MapperBase
 {
+    public bool MouthUpperDeepenFromMouthUpperUp { get; init; } = false;
+    public float MouthDimpleFromMouthSmile { get; init; } = 0f;
+    public float MouthStretchFromMouthFrown { get; init; } = 0f;
+
     public override void UpdateExpression(MeowFaceParam meowFaceParam)
     {
         meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthUpperUpRight,
@@ -74,22 +78,52 @@ public class LipAndMouthMapper : MapperBase
         meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.LipPuckerLowerLeft,
             MeowFaceParam.MouthPucker);
 
-        // Not standard, need to test, from https://github.com/regzo2/VRCFaceTracking-MeowFace/blob/master/MeowFaceExtTrackingInterface/MeowFaceExtTrackingInterface.cs
-        /*meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthRaiserLower, MeowFaceParam.MouthShrugUpper);
+        // Simulated shapes, from https://github.com/regzo2/VRCFaceTracking-MeowFace/blob/master/MeowFaceExtTrackingInterface/MeowFaceExtTrackingInterface.cs
 
-        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthUpperDeepenRight, MeowFaceParam.MouthUpperUpRight);
-        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthUpperDeepenLeft, MeowFaceParam.MouthUpperUpLeft);
+        //meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthRaiserLower, MeowFaceParam.MouthShrugUpper);
 
-        float? mouthSmileRight = meowFaceParam.GetShape(MeowFaceParam.MouthSmileRight);
-        float? mouthSmileLeft = meowFaceParam.GetShape(MeowFaceParam.MouthSmileLeft);
+        if (MouthUpperDeepenFromMouthUpperUp)
+        {
+            meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes,
+                UnifiedExpressions.MouthUpperDeepenRight, MeowFaceParam.MouthUpperUpRight);
+            meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes,
+                UnifiedExpressions.MouthUpperDeepenLeft, MeowFaceParam.MouthUpperUpLeft);
+        }
 
-        float? mouthFrownRight = meowFaceParam.GetShape(MeowFaceParam.MouthFrownRight);
-        float? mouthFrownLeft = meowFaceParam.GetShape(MeowFaceParam.MouthFrownLeft);
+        if (MouthDimpleFromMouthSmile is > 0f and <= 1f)
+        {
+            float? mouthSmileRight =
+                meowFaceParam.GetShape(MeowFaceParam.MouthSmileRight) * MouthDimpleFromMouthSmile;
+            float? mouthSmileLeft =
+                meowFaceParam.GetShape(MeowFaceParam.MouthSmileLeft) * MouthDimpleFromMouthSmile;
 
-        if (mouthSmileRight != null) UnifiedTracking.Data.Shapes[(int)UnifiedExpressions.MouthDimpleRight].Weight = mouthSmileRight.Value * 0.5f;
-        if (mouthSmileLeft != null) UnifiedTracking.Data.Shapes[(int)UnifiedExpressions.MouthDimpleLeft].Weight = mouthSmileLeft.Value * 0.5f;
+            if (mouthSmileRight != null)
+            {
+                UnifiedTracking.Data.Shapes[(int)UnifiedExpressions.MouthDimpleRight].Weight = mouthSmileRight.Value;
+            }
 
-        if (mouthFrownRight != null) UnifiedTracking.Data.Shapes[(int)UnifiedExpressions.MouthStretchRight].Weight = mouthFrownRight.Value * 0.5f;
-        if (mouthFrownLeft != null) UnifiedTracking.Data.Shapes[(int)UnifiedExpressions.MouthStretchLeft].Weight = mouthFrownLeft.Value * 0.5f;*/
+            if (mouthSmileLeft != null)
+            {
+                UnifiedTracking.Data.Shapes[(int)UnifiedExpressions.MouthDimpleLeft].Weight = mouthSmileLeft.Value;
+            }
+        }
+
+        if (MouthStretchFromMouthFrown is > 0f and <= 1f)
+        {
+            float? mouthFrownRight =
+                meowFaceParam.GetShape(MeowFaceParam.MouthFrownRight) * MouthStretchFromMouthFrown;
+            float? mouthFrownLeft =
+                meowFaceParam.GetShape(MeowFaceParam.MouthFrownLeft) * MouthStretchFromMouthFrown;
+
+            if (mouthFrownRight != null)
+            {
+                UnifiedTracking.Data.Shapes[(int)UnifiedExpressions.MouthStretchRight].Weight = mouthFrownRight.Value;
+            }
+
+            if (mouthFrownLeft != null)
+            {
+                UnifiedTracking.Data.Shapes[(int)UnifiedExpressions.MouthStretchLeft].Weight = mouthFrownLeft.Value;
+            }
+        }
     }
 }

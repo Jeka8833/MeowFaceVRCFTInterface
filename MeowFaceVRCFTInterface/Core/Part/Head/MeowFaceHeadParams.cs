@@ -14,24 +14,31 @@ public class MeowFaceHeadParams
 
         if (meowFaceParam.HeadPosition.HasValue)
         {
-            // FusedMultiplyAdd more predictable, if MeowFace make something crazy
+            /*
+            RectBuilder normalizedRect = new RectBuilder(rect);
+            normalizedRect.setX(normalizedRect.getX() / image.getWidth());
+            normalizedRect.setY(normalizedRect.getY() / image.getHeight());
+            normalizedRect.setWidth(normalizedRect.getWidth() / image.getWidth());
+            normalizedRect.setHeight(normalizedRect.getHeight() / image.getHeight());
+
+            Vec2 normalizedImagePosition = headPos.getXy().times(normalizedRect.getExtent()).plus(normalizedRect.getOrigin());
+
+            Even if it is called Normalized, the values can go beyond -0.6 and 1.6??? ((((
+            */
 
             if (EnablePositionX)
             {
-                headParams.PosX = float.FusedMultiplyAdd(
-                    meowFaceParam.HeadPosition.Value.X, 2f, -1f);
+                headParams.PosX = meowFaceParam.HeadPosition.Value.X;
             }
 
             if (EnablePositionY)
             {
-                headParams.PosY = float.FusedMultiplyAdd(
-                    meowFaceParam.HeadPosition.Value.Y, 2f, -1f);
+                headParams.PosY = meowFaceParam.HeadPosition.Value.Y;
             }
 
             if (EnablePositionZ)
             {
-                headParams.PosZ = float.FusedMultiplyAdd(
-                    meowFaceParam.HeadPosition.Value.Z, 2f, -1f);
+                headParams.PosZ = meowFaceParam.HeadPosition.Value.Z;
             }
         }
 

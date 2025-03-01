@@ -2,22 +2,22 @@
 
 public class HeadBoost
 {
-    public float BoostX { get; init; } = 1f;
-    public float BoostY { get; init; } = 1f;
-    public float BoostZ { get; init; } = 1f;
+    public float X { get; init; } = 2f;
+    public float Y { get; init; } = 2f;
+    public float Z { get; init; } = 2f;
 
-    public float BoostPitch { get; init; } = 4f;
-    public float BoostRoll { get; init; } = 2f;
-    public float BoostYaw { get; init; } = 2f;
+    public float Pitch { get; init; } = 4f;
+    public float Roll { get; init; } = 2f;
+    public float Yaw { get; init; } = 2f;
 
     public void Update(HeadParams headParams)
     {
-        headParams.PosX *= BoostX;
-        headParams.PosY *= BoostY;
-        headParams.PosZ *= BoostZ;
+        headParams.PosX *= X;
+        headParams.PosY *= Y;
+        headParams.PosZ *= Z;
 
-        headParams.Pitch *= BoostPitch;
-        headParams.Roll *= BoostRoll;
-        headParams.Yaw *= BoostYaw;
+        headParams.Pitch *= Pitch;
+        headParams.Roll *= Roll;
+        headParams.Yaw *= Yaw;
     }
 }

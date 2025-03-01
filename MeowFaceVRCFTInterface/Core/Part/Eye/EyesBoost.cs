@@ -2,15 +2,15 @@
 
 public class EyesBoost
 {
-    public float BoostX { get; init; } = 1f;
-    public float BoostY { get; init; } = 1f;
+    public float X { get; init; } = 1f;
+    public float Y { get; init; } = 1f;
 
     public void Update(EyesParams eyesParams)
     {
-        eyesParams.LeftGazeX *= BoostX;
-        eyesParams.RightGazeX *= BoostX;
+        eyesParams.LeftGazeX *= X;
+        eyesParams.RightGazeX *= X;
 
-        eyesParams.LeftGazeY *= BoostY;
-        eyesParams.RightGazeY *= BoostY;
+        eyesParams.LeftGazeY *= Y;
+        eyesParams.RightGazeY *= Y;
     }
 }

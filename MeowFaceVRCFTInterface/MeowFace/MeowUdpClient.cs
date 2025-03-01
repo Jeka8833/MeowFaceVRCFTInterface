@@ -75,7 +75,10 @@ public class MeowUdpClient : IDisposable
                 MeowFaceDto? currentPacket = JsonConvert.DeserializeObject<MeowFaceDto>(dataStr);
 
                 // Timestamp == 0 when Timestamp is absent
-                if (currentPacket != null && (_lastTimestamp == 0 || currentPacket.Timestamp - _lastTimestamp >= 0))
+                if (currentPacket != null &&
+                    (_lastTimestamp == 0L || currentPacket.Timestamp - _lastTimestamp >= 0L ||
+                     currentPacket.Timestamp - _lastTimestamp <
+                     -120_000L)) // 2 minute, if phone's time is changed, bypass soft-lock
                 {
                     _lastTimestamp = currentPacket.Timestamp;
 
@@ -88,19 +91,19 @@ public class MeowUdpClient : IDisposable
             }
             catch (SocketException e)
             {
+                Thread.Sleep(1);
+
                 _logger.LogWarning("Meow UDP Socket error, is MeowFace app opened and connected?\n" +
                                    "Disable the module via the VRCFT interface to stop spamming the logs.");
                 _logger.LogDebug(e, "Additional StackTrace");
-
-                Thread.Sleep(1);
 
                 _meowUdpAutoConnect?.TryStartBroadcasting();
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Process UDP packet error");
-
                 Thread.Sleep(1);
+
+                _logger.LogWarning(e, "Process UDP packet error");
             }
         } while (_udpClient.Available > 0); // Has new data, reduce latency
 
@@ -137,7 +140,7 @@ public class MeowUdpClient : IDisposable
     /// <exception cref="Exception">If it can't create UDP Socket</exception>
     private UdpClient TryCreateUdpSocket()
     {
-        for (int i = 0; i <= 0xFFFF; i++)
+        for (int i = 0; i <= IPEndPoint.MaxPort; i++)
         {
             try
             {
@@ -149,7 +152,7 @@ public class MeowUdpClient : IDisposable
 
                 _logger.LogInformation("UDP port {} is busy, the next one will be used!", SocketPort);
 
-                SocketPort++;
+                SocketPort++;   // controlled ushort overflow 
             }
         }
 

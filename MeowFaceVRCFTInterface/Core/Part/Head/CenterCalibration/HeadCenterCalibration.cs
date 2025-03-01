@@ -7,7 +7,7 @@ namespace MeowFaceVRCFTInterface.Core.Part.Head.CenterCalibration;
 public class HeadCenterCalibration : IDisposable
 {
     public bool DoCalibration { get; set; }
-    public uint AverageSampleCount { get; init; } = 120;
+    public ushort AverageSampleCount { get; set; } = 120;
     public ushort WaitBeforeStartCalibrationSeconds { get; init; } = 4;
 
     public HeadValueStorage Shift { get; set; } = new();
@@ -24,6 +24,15 @@ public class HeadCenterCalibration : IDisposable
 
         if (DoCalibration)
         {
+            if (AverageSampleCount == 0)
+            {
+                AverageSampleCount = 1;
+                
+                _module.MeowLogger.LogWarning("EyesCenterCalibration.AverageSampleCount is 0, set to 1");
+
+                _module.ConfigManager.SaveConfigAsync();
+            }
+            
             double timeoutTime = (WaitBeforeStartCalibrationSeconds + AverageSampleCount / 5d)
                 * 1000d + 15_000d;
 
@@ -49,17 +58,9 @@ public class HeadCenterCalibration : IDisposable
         if (!DoCalibration ||
             Stopwatch.GetElapsedTime(_moduleStartTime.Value).TotalSeconds < WaitBeforeStartCalibrationSeconds)
         {
-            headParams.PosX = RangeNormalization.X
-                ? MathUtil.FixedRangeCenterShift(headParams.PosX, Shift.X)
-                : headParams.PosX - Shift.X;
-
-            headParams.PosY = RangeNormalization.Y
-                ? MathUtil.FixedRangeCenterShift(headParams.PosY, Shift.Y)
-                : headParams.PosY - Shift.Y;
-
-            headParams.PosZ = RangeNormalization.Z
-                ? MathUtil.FixedRangeCenterShift(headParams.PosZ, Shift.Z)
-                : headParams.PosZ - Shift.Z;
+            headParams.PosX -= Shift.X;
+            headParams.PosY -= Shift.Y;
+            headParams.PosZ -= Shift.Z;
 
             headParams.Pitch = RangeNormalization.Pitch
                 ? MathUtil.FixedRangeCenterShift(headParams.Pitch, Shift.Pitch)

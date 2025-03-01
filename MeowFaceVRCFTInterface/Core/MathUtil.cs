@@ -12,7 +12,11 @@ public static class MathUtil
     public static float? FixedRangeCenterShift(float? value, float shift, float min = -1f, float max = 1f)
     {
         if (!value.HasValue) return null;
-        if (value < min || value > max) throw new ArgumentException("value < min || value > max, need to change range");
+        if (value < min || value > max)
+        {
+            throw new ArgumentException("value < min || value > max, need to change range; value: " + value +
+                                        ", min: " + min + ", max: " + max + " shift: " + shift);
+        }
 
         float result = (float)CalculateShiftRange(value.Value, shift, min, max);
 

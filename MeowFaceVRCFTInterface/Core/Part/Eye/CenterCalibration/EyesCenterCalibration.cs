@@ -7,7 +7,7 @@ namespace MeowFaceVRCFTInterface.Core.Part.Eye.CenterCalibration;
 public class EyesCenterCalibration : IDisposable
 {
     public bool DoCalibration { get; set; }
-    public uint AverageSampleCount { get; init; } = 120;
+    public ushort AverageSampleCount { get; set; } = 120;
     public ushort WaitBeforeStartCalibrationSeconds { get; init; } = 4;
 
     public EyesValueStorage Shift { get; set; } = new();
@@ -24,6 +24,15 @@ public class EyesCenterCalibration : IDisposable
 
         if (DoCalibration)
         {
+            if (AverageSampleCount == 0)
+            {
+                AverageSampleCount = 1;
+                
+                _module.MeowLogger.LogWarning("EyesCenterCalibration.AverageSampleCount is 0, set to 1");
+
+                _module.ConfigManager.SaveConfigAsync();
+            }
+
             double timeoutTime = (WaitBeforeStartCalibrationSeconds + AverageSampleCount / 5d)
                 * 1000d + 15_000d;
 

@@ -90,12 +90,12 @@ public class LipAndMouthMapper : MapperBase
                 UnifiedExpressions.MouthUpperDeepenLeft, MeowFaceParam.MouthUpperUpLeft);
         }
 
-        if (MouthDimpleFromMouthSmile is > 0f and <= 1f)
+        if (MouthDimpleFromMouthSmile is > 0f and <= 10f)
         {
-            float? mouthSmileRight =
-                meowFaceParam.GetShape(MeowFaceParam.MouthSmileRight) * MouthDimpleFromMouthSmile;
-            float? mouthSmileLeft =
-                meowFaceParam.GetShape(MeowFaceParam.MouthSmileLeft) * MouthDimpleFromMouthSmile;
+            float? mouthSmileRight = MathUtil.ClampFloat(meowFaceParam.GetShape(MeowFaceParam.MouthSmileRight) *
+                                                         MouthDimpleFromMouthSmile, 0f);
+            float? mouthSmileLeft = MathUtil.ClampFloat(meowFaceParam.GetShape(MeowFaceParam.MouthSmileLeft) *
+                                                        MouthDimpleFromMouthSmile, 0f);
 
             if (mouthSmileRight != null)
             {
@@ -108,12 +108,12 @@ public class LipAndMouthMapper : MapperBase
             }
         }
 
-        if (MouthStretchFromMouthFrown is > 0f and <= 1f)
+        if (MouthStretchFromMouthFrown is > 0f and <= 10f)
         {
-            float? mouthFrownRight =
-                meowFaceParam.GetShape(MeowFaceParam.MouthFrownRight) * MouthStretchFromMouthFrown;
-            float? mouthFrownLeft =
-                meowFaceParam.GetShape(MeowFaceParam.MouthFrownLeft) * MouthStretchFromMouthFrown;
+            float? mouthFrownRight = MathUtil.ClampFloat(meowFaceParam.GetShape(MeowFaceParam.MouthFrownRight) *
+                                                         MouthStretchFromMouthFrown, 0f);
+            float? mouthFrownLeft = MathUtil.ClampFloat(meowFaceParam.GetShape(MeowFaceParam.MouthFrownLeft) *
+                                                        MouthStretchFromMouthFrown, 0f);
 
             if (mouthFrownRight != null)
             {

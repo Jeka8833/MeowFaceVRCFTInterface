@@ -153,7 +153,7 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
                 }
             }
         }
-        catch (ThreadInterruptedException) // VRCFT doesn't send an interrupt when it wants to stop the module? ((
+        catch (ThreadInterruptedException) // VRCFT doesn't send an interrupt when it wants to stop the module ((
         {
         }
         catch (Exception e)

@@ -2,9 +2,9 @@
 
 public class HeadValueStorage
 {
-    public float X { get; init; } = -0.5f;
-    public float Y { get; init; } = -0.5f;
-    public float Z { get; init; } = -0.5f;
+    public float X { get; init; } = 0.5f;
+    public float Y { get; init; } = 0.5f;
+    public float Z { get; init; } = 0.5f;
 
     public float Pitch { get; init; }
     public float Roll { get; init; }

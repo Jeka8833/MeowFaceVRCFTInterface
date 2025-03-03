@@ -23,7 +23,7 @@ public class MeowFaceHeadParams
 
             Vec2 normalizedImagePosition = headPos.getXy().times(normalizedRect.getExtent()).plus(normalizedRect.getOrigin());
 
-            Even if it is called Normalized, the values can go beyond -0.6 and 1.6??? ((((
+            Even if it is called Normalized, the values can go beyond -0.6 and 1.6 ((((
             */
 
             if (EnablePositionX)
@@ -42,10 +42,10 @@ public class MeowFaceHeadParams
             }
         }
 
-        // euler_rotation_ranges: [45, 88, 40]  -> Max Value: [0.5, 0.98, 0.45]???
-        // headParams.HeadPitch -> meowFaceParam.Y
-        // headParams.HeadRoll -> meowFaceParam.Z
-        // headParams.HeadYaw -> meowFaceParam.X
+        // euler_rotation_ranges: [45, 88, 40]  -> Max Value: [0.5, 0.98, 0.45] if Weight: 1
+        // headParams.Pitch -> meowFaceParam.Y
+        // headParams.Roll -> meowFaceParam.Z
+        // headParams.Yaw -> meowFaceParam.X
         headParams.Pitch = meowFaceParam.SubtractShapes(MeowFaceParam.HeadDown, MeowFaceParam.HeadUp);
         headParams.Roll = meowFaceParam.SubtractShapes(MeowFaceParam.HeadRollRight, MeowFaceParam.HeadRollLeft);
         headParams.Yaw = meowFaceParam.SubtractShapes(MeowFaceParam.HeadLeft, MeowFaceParam.HeadRight);

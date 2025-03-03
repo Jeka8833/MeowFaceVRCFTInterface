@@ -28,7 +28,8 @@ The MeowFaceVRCFTInterface is a good starting point as it doesn't require you to
 Camera position, facial structure and other parameters are different for everyone, so the module needs to be customized and calibrated.
 
 - Instructions on how to configure the module can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki/Configuring-the-module)
-- Instructions on how to calibrate an avatar face from the MeowFace app can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki/Calibrate-From-the-MeowFace-App)
+- Instructions on how to configure the Android MeowFace app can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki/MeowFace)
+
 ## Other Documentation
 
 - All instructions can be found here: [click here](https://github.com/Jeka8833/MeowFaceVRCFTInterface/wiki)

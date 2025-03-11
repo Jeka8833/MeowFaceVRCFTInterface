@@ -125,5 +125,22 @@ public class LipAndMouthMapper : MapperBase
                 UnifiedTracking.Data.Shapes[(int)UnifiedExpressions.MouthStretchLeft].Weight = mouthFrownLeft.Value;
             }
         }
+        
+        // MediaPipe
+        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthClosed,
+            MeowFaceParam.MouthClose);
+
+        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthDimpleLeft,
+            MeowFaceParam.MouthDimpleLeft);
+        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthDimpleRight,
+            MeowFaceParam.MouthDimpleRight);
+
+        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthPressLeft,
+            MeowFaceParam.MouthPressLeft);
+        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthPressRight,
+            MeowFaceParam.MouthPressRight);
+        
+        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.MouthRaiserLower,
+            MeowFaceParam.MouthShrugLower);
     }
 }

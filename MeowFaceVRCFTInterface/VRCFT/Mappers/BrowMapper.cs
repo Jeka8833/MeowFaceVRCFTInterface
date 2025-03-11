@@ -9,10 +9,21 @@ public class BrowMapper : MapperBase
 {
     public override void UpdateExpression(MeowFaceParam meowFaceParam)
     {
-        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.BrowInnerUpRight,
-            MeowFaceParam.BrowInnerUpRight);
-        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.BrowInnerUpLeft,
-            MeowFaceParam.BrowInnerUpLeft);
+        if (meowFaceParam.GetShape(MeowFaceParam.BrowInnerUpRight) != null ||
+            meowFaceParam.GetShape(MeowFaceParam.BrowInnerUpLeft) != null)  // MediaPipe
+        {
+            meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.BrowInnerUpRight,
+                MeowFaceParam.BrowInnerUpRight);
+            meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.BrowInnerUpLeft,
+                MeowFaceParam.BrowInnerUpLeft);
+        }
+        else
+        {
+            meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.BrowInnerUpRight,
+                MeowFaceParam.BrowInnerUp);
+            meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.BrowInnerUpLeft,
+                MeowFaceParam.BrowInnerUp); 
+        }
 
         meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.BrowOuterUpRight,
             MeowFaceParam.BrowOuterUpRight);

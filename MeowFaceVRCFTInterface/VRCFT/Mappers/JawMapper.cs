@@ -16,5 +16,9 @@ public class JawMapper : MapperBase
 
         meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.JawOpen,
             MeowFaceParam.JawOpen);
+
+        // MediaPipe
+        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.JawForward,
+            MeowFaceParam.JawForward);
     }
 }

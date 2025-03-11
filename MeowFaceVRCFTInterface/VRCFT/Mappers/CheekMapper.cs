@@ -25,5 +25,11 @@ public class CheekMapper : MapperBase
             meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.CheekSquintLeft,
                 MeowFaceParam.MouthSmileLeft);
         }
+        
+        // MediaPipe
+        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.CheekSquintRight,
+            MeowFaceParam.CheekSquintRight);
+        meowFaceParam.TrySetToVrcftShape(UnifiedTracking.Data.Shapes, UnifiedExpressions.CheekSquintLeft,
+            MeowFaceParam.CheekSquintLeft);
     }
 }

@@ -8,7 +8,6 @@ public readonly struct MeowFaceParam
 {
     public const string BrowDownLeft = "browDownLeft";
     public const string BrowDownRight = "browDownRight";
-    // public const string BrowInnerUp = "browInnerUp";    // It's just (BrowInnerUpLeft + BrowInnerUpRight) / 2 in MeowFace code
     public const string BrowInnerUpLeft = "browInnerUpLeft";
     public const string BrowInnerUpRight = "browInnerUpRight";
     public const string BrowOuterUpLeft = "browOuterUpLeft";
@@ -62,6 +61,22 @@ public readonly struct MeowFaceParam
     public const string NoseSneerRight = "noseSneerRight";
 
     public const string TongueOut = "tongueOut";
+
+    // MediaPipe Support
+    public const string BrowInnerUp = "browInnerUp";
+
+    public const string CheekSquintLeft = "cheekSquintLeft";
+    public const string CheekSquintRight = "cheekSquintRight";
+
+    public const string JawForward = "jawForward";
+
+    public const string MouthClose = "mouthClose";
+    public const string MouthDimpleLeft = "mouthDimpleLeft";
+    public const string MouthDimpleRight = "mouthDimpleRight";
+    public const string MouthPressLeft = "mouthPressLeft";
+    public const string MouthPressRight = "mouthPressRight";
+    public const string MouthShrugLower = "mouthShrugLower";
+
 
     public Vector3? HeadPosition { get; }
 

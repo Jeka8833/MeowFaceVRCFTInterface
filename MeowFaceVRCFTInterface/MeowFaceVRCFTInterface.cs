@@ -78,7 +78,7 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
             return (false, false);
         }
 
-        ModuleInformation.Name = "Meow Face";
+        ModuleInformation.Name = "MeowFace";
 
         try
         {

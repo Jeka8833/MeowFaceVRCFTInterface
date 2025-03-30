@@ -6,8 +6,8 @@ public class HeadBoost
     public float Y { get; init; } = 2f;
     public float Z { get; init; } = 2f;
 
-    public float Pitch { get; init; } = 4f;
-    public float Roll { get; init; } = 2f;
+    public float Pitch { get; init; } = 3f;
+    public float Roll { get; init; } = 1f;
     public float Yaw { get; init; } = 2f;
 
     public void Update(HeadParams headParams)

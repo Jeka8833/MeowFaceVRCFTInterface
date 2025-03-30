@@ -1,4 +1,5 @@
-﻿using MeowFaceVRCFTInterface.MeowFace;
+﻿using System.Numerics;
+using MeowFaceVRCFTInterface.MeowFace;
 
 namespace MeowFaceVRCFTInterface.Core.Part.Head;
 
@@ -42,13 +43,35 @@ public class MeowFaceHeadParams
             }
         }
 
+        // new C0747h("headLeft", Float.valueOf(Math.max(0.0f, m737r.getY()) / 1.5707964f)),
+        // new C0747h("headRight", Float.valueOf((-Math.min(0.0f, m737r.getY())) / 1.5707964f)),
+        // new C0747h("headUp", Float.valueOf((-Math.min(0.0f, m737r.getX())) / 1.5707964f)),
+        // new C0747h("headDown", Float.valueOf(Math.max(0.0f, m737r.getX()) / 1.5707964f)),
+        // new C0747h("headRollLeft", Float.valueOf((-Math.min(0.0f, m737r.getZ())) / 1.5707964f)),
+        // new C0747h("headRollRight", Float.valueOf(Math.max(0.0f, m737r.getZ()) / 1.5707964f)));
+
         // euler_rotation_ranges: [45, 88, 40]  -> Max Value: [0.5, 0.98, 0.45] if Weight: 1
-        // headParams.Pitch -> meowFaceParam.Y
-        // headParams.Roll -> meowFaceParam.Z
-        // headParams.Yaw -> meowFaceParam.X
-        headParams.Pitch = meowFaceParam.SubtractShapes(MeowFaceParam.HeadDown, MeowFaceParam.HeadUp);
-        headParams.Roll = meowFaceParam.SubtractShapes(MeowFaceParam.HeadRollRight, MeowFaceParam.HeadRollLeft);
-        headParams.Yaw = meowFaceParam.SubtractShapes(MeowFaceParam.HeadLeft, MeowFaceParam.HeadRight);
+        float? rotX = meowFaceParam.SubtractShapes(MeowFaceParam.HeadDown, MeowFaceParam.HeadUp);
+        float? rotY = meowFaceParam.SubtractShapes(MeowFaceParam.HeadLeft, MeowFaceParam.HeadRight);
+        float? rotZ = meowFaceParam.SubtractShapes(MeowFaceParam.HeadRollRight, MeowFaceParam.HeadRollLeft);
+
+        if (rotX.HasValue || rotY.HasValue || rotZ.HasValue)
+        {
+            /* MeowFace Code:
+                public final Vec3 toEuler() {
+                    float x = (float) Math.atan2(2 * ((getR() * getI()) + (getJ() * getK())), 1 - (2 * ((getI() * getI()) + (getJ() * getJ()))));
+                    float s = 2 * ((getR() * getJ()) - (getK() * getI()));
+                    float y = Math.abs(s) >= 1.0f ? Math.signum(s) * 2 * ((float) 3.141592653589793d) : (float) Math.asin(s);
+                    float z = (float) Math.atan2(2 * ((getR() * getK()) + (getI() * getJ())), 1 - (2 * ((getJ() * getJ()) + (getK() * getK()))));
+                    return new Vec3(x, y, z);
+                }
+            */
+            Vector3 rotZxy = MathUtil.EulerZYX2ZXYOneScale(new Vector3(rotX ?? 0f, rotY ?? 0f, rotZ ?? 0f));
+
+            headParams.Pitch = rotZxy.X;
+            headParams.Roll = rotZxy.Y;
+            headParams.Yaw = rotZxy.Z;
+        }
 
         return headParams;
     }

@@ -10,6 +10,8 @@
 /// Head position values should be normalized / capped to a [-1, 1] range and represent deviation from a set user origin point in meters
 ///     The normalized values should be *approximately* represent a 1x1x1 meter movement region about the user's origin point 
 ///     (i.e. HeadPosX = 1 means the user is 0.5m to their right from their starting point, HeadPosX = -1 the user is 0.5m to their left)
+///
+/// All rotation in Euler angles is in ZXY order (https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-eulerAngles.html)
 /// </summary>
 public class HeadParams
 {

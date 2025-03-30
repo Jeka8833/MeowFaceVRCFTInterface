@@ -1,7 +1,7 @@
 {
   "ModuleId": "943d93e7-f5c5-42d3-9251-e65d1f59ef2a",
-  "LastUpdated": "2025-03-03T09:57:00Z",
-  "Version": "2.0.1.2",
+  "LastUpdated": "2025-03-30T18:39:00Z",
+  "Version": "2.0.1.3",
   "Downloads": 0,
   "Ratings": 0,
   "Rating": 0,
@@ -9,7 +9,7 @@
   "ModuleName": "MeowFaceVRCFTInterface",
   "ModuleDescription": "Use the free MeowFace Android app to track your face.",
   "UsageInstructions": "All instructions are on GitHub, please visit the module page.",
-  "DownloadUrl": "https://github.com/Jeka8833/MeowFaceVRCFTInterface/releases/download/2.0.1.2/MeowFaceVRCFTInterface.zip",
+  "DownloadUrl": "https://github.com/Jeka8833/MeowFaceVRCFTInterface/releases/download/2.0.1.3/MeowFaceVRCFTInterface.zip",
   "ModulePageUrl": "https://github.com/Jeka8833/MeowFaceVRCFTInterface",
   "DllFileName": "MeowFaceVRCFTInterface.dll"
 }

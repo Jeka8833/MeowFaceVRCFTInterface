@@ -4,6 +4,7 @@ using MeowFaceVRCFTInterface.Core;
 using MeowFaceVRCFTInterface.Core.Config;
 using MeowFaceVRCFTInterface.Core.Logger;
 using MeowFaceVRCFTInterface.MeowFace;
+using MeowFaceVRCFTInterface.VRCFT;
 using Microsoft.Extensions.Logging;
 using VRCFaceTracking;
 using VRCFaceTracking.Core.Library;
@@ -29,11 +30,14 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
     public ILogger MeowSpamLogger { get; private set; } = null!;
     public ConfigManager ConfigManager { get; private set; } = null!;
 
+    private readonly OtherModulesBlockBypass _otherModulesBlockBypass = new(true, true);
+
     private MeowUdpClient _udpClient = null!;
 
     private ModuleState _previousStatus = ModuleState.Uninitialized;
 
-    public override (bool SupportsEye, bool SupportsExpression) Supported => (true, true);
+    public override (bool SupportsEye, bool SupportsExpression) Supported =>
+        _otherModulesBlockBypass.GetSupportedStates();
 
     public override (bool eyeSuccess, bool expressionSuccess) Initialize(bool eyeAvailable, bool expressionAvailable)
     {
@@ -96,7 +100,10 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
 
         MeowLogger.LogInformation("Android MeowFace app is connected successfully!");
 
-        return (eyeAvailable, expressionAvailable);
+        _otherModulesBlockBypass.BypassEnabled = ConfigManager.Config.BypassOtherModulesBlock;
+        _otherModulesBlockBypass.EyeInPriority = ConfigManager.Config.BypassOtherModulesBlockEyePriority;
+
+        return _otherModulesBlockBypass.Initialize(eyeAvailable, expressionAvailable);
     }
 
     public override void Update()
@@ -114,6 +121,9 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
                         ConfigManager.LoadConfig();
                     }
 
+                    _otherModulesBlockBypass.BypassEnabled = ConfigManager.Config.BypassOtherModulesBlock;
+                    _otherModulesBlockBypass.EyeInPriority = ConfigManager.Config.BypassOtherModulesBlockEyePriority;
+
                     try
                     {
                         _udpClient.ReceiveTimeoutMillis =
@@ -128,12 +138,18 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
                 _previousStatus = Status;
             }
 
-            if (Status != ModuleState.Active || !(ModuleInformation.UsingEye || ModuleInformation.UsingExpression))
+            bool isUsingEye = _otherModulesBlockBypass.IsUsingEye(ModuleInformation.UsingEye);
+            bool isUsingExpression = _otherModulesBlockBypass.IsUsingExpression(ModuleInformation.UsingExpression);
+
+            if (Status != ModuleState.Active || !(isUsingEye || isUsingExpression))
             {
                 Thread.Sleep(100);
 
                 return;
             }
+
+            ModuleInformation.UsingEye = isUsingEye;
+            ModuleInformation.UsingExpression = isUsingExpression;
 
             MeowFaceParam? meowFaceParam = _udpClient.TryRequest();
             if (!meowFaceParam.HasValue) return;
@@ -142,12 +158,12 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
             {
                 if (!mapper.IsEnabled || mapper.IsMapperCrashed) continue;
 
-                if (ModuleInformation.UsingEye)
+                if (isUsingEye)
                 {
                     mapper.UpdateEye(meowFaceParam.Value);
                 }
 
-                if (ModuleInformation.UsingExpression)
+                if (isUsingExpression)
                 {
                     mapper.UpdateExpression(meowFaceParam.Value);
                 }

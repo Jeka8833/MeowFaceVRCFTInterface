@@ -12,6 +12,8 @@ public class MeowConfig
     public ushort SearchMeowFaceTimeoutSeconds { get; init; } = 60;
     public uint MeowFaceReadTimeoutMilliseconds { get; init; } = 5_000;
     public bool ShowAllLogs { get; init; } = false;
+    public bool BypassOtherModulesBlock { get; init; } = false;
+    public bool BypassOtherModulesBlockEyePriority { get; init; } = false;
 
     public EyeMapper EyeMapper { get; init; } = new();
     public BrowMapper BrowMapper { get; init; } = new();

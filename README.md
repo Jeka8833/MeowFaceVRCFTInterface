@@ -10,7 +10,7 @@ The MeowFaceVRCFTInterface is a good starting point as it doesn't require you to
 
 ## Step 0
 
-1. Make sure you've installed [MeowFace](https://suvidriel.itch.io/meowface) (Only for Android 5-13). Installation on Android 14+ is difficult but [possible](https://bayton.org/android/android-14-minimum-sdk/#is-it-possible-to-test-the-changes).
+1. Make sure you've installed [MeowFace](https://suvidriel.itch.io/meowface).
 2. Make sure you've installed [VRCFaceTracking](https://docs.vrcft.io).
 3. Make sure you find an avatar that supports face tracking or head movement. You **won't be able** to check if it works without this/third-party module enabled. Here's a video tutorial: [link](https://youtu.be/aitYy5H9YTM)
 4. The **most important step** is to make sure that you have enabled [OSC](https://docs.vrcft.io/docs/intro/getting-started#3%EF%B8%8F-enable-osc-in-vrchat) in the avatar settings and enabled tracking of individual parts of the face/head; by default, this is all turned off.

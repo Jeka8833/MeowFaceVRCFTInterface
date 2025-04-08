@@ -23,7 +23,12 @@ public class OtherModulesBlockBypass
 
     public (bool eyeSuccess, bool expressionSuccess) Initialize(bool eyeAvailable, bool expressionAvailable)
     {
-        if (!BypassEnabled) return (eyeAvailable, expressionAvailable);
+        if (!BypassEnabled)
+        {
+            return
+                (eyeAvailable && _eyeSupported, expressionAvailable && _expressionSupported);
+        }
+
         if (eyeAvailable == expressionAvailable) return (EyeInPriority, !EyeInPriority);
 
         return (!eyeAvailable, !expressionAvailable);
@@ -31,11 +36,11 @@ public class OtherModulesBlockBypass
 
     public bool IsUsingEye(bool usingEye)
     {
-        return BypassEnabled ? _eyeSupported : usingEye;
+        return BypassEnabled ? _eyeSupported : usingEye && _eyeSupported;
     }
 
     public bool IsUsingExpression(bool usingExpression)
     {
-        return BypassEnabled ? _expressionSupported : usingExpression;
+        return BypassEnabled ? _expressionSupported : usingExpression && _expressionSupported;
     }
 }

@@ -122,7 +122,6 @@ public class MeowFaceVRCFTInterface : ExtTrackingModule
                     }
 
                     _otherModulesBlockBypass.BypassEnabled = ConfigManager.Config.BypassOtherModulesBlock;
-                    _otherModulesBlockBypass.EyeInPriority = ConfigManager.Config.BypassOtherModulesBlockEyePriority;
 
                     try
                     {
